@@ -7,15 +7,15 @@
     { "src": "sw.js", "use": "@vercel/static" },
     { "src": "icon-192.png", "use": "@vercel/static" },
     { "src": "icon-512.png", "use": "@vercel/static" },
-    { "src": "assets/(.*)", "use": "@vercel/static" }
+    { "src": "assets/**", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/manifest.json", "dest": "/manifest.json" },
     { "src": "/sw.js", "dest": "/sw.js" },
     { "src": "/icon-192.png", "dest": "/icon-192.png" },
     { "src": "/icon-512.png", "dest": "/icon-512.png" },
-    { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
