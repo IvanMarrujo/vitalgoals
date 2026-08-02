@@ -1361,10 +1361,10 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     let mainMesh=null,glowMesh=null,logoReady=false;
 
     function buildTexturePlanes(texture){
-      const glowMat=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+      const glowMat=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:0,blending:THREE.NormalBlending,depthWrite:false});
       glowMesh=new THREE.Mesh(new THREE.PlaneGeometry(3.0,3.0),glowMat);
       glowMesh.position.z=-0.1;
-      const mainMat=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+      const mainMat=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:0,blending:THREE.NormalBlending,depthWrite:false});
       mainMesh=new THREE.Mesh(new THREE.PlaneGeometry(2.5,2.5),mainMat);
       scene.add(glowMesh,mainMesh);
       logoReady=true;
