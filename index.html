@@ -465,16 +465,16 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 .water-card{background:var(--card);border:1px solid rgba(59,158,255,.18);border-radius:16px;padding:24px;margin-bottom:18px;text-align:center}
 .water-header{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .water-header svg{width:15px;height:15px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.water-cups{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin:14px 0}
-.water-cup{width:26px;height:26px;opacity:.15;transition:all .3s}
-.water-cup.filled{opacity:1}
-.water-cup svg{width:100%;height:100%;stroke:var(--blue);fill:rgba(59,158,255,.15);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.water-amount{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;color:var(--blue);line-height:1;filter:drop-shadow(0 0 12px rgba(59,158,255,.4))}
-.water-unit{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim)}
-.water-btns{display:flex;gap:10px;margin-top:14px}
-.water-btn{flex:1;padding:13px;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;cursor:pointer;transition:all .18s;border:1px solid}
-.water-btn.add{background:rgba(59,158,255,.1);border-color:rgba(59,158,255,.3);color:var(--blue)}
-.water-btn.rem{background:transparent;border-color:var(--border);color:var(--text-dim)}
+.water-bar-track{width:100%;height:22px;background:rgba(255,255,255,.06);border-radius:11px;overflow:hidden;margin:14px 0 10px}
+.water-bar-fill{height:100%;background:#00b4d8;border-radius:11px;transition:width .4s ease;width:0%}
+.water-bar-track.goal-met .water-bar-fill{background:var(--green);animation:waterPulse 1.2s ease-in-out infinite}
+@keyframes waterPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.water-amount-txt{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;color:var(--text-mid)}
+.water-amount-txt.goal-met{color:var(--green)}
+.water-quick-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+.water-qbtn{flex:1;min-width:56px;padding:10px 4px;background:rgba(59,158,255,.08);border:1px solid rgba(59,158,255,.25);border-radius:8px;color:#00b4d8;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .18s}
+.water-qbtn:hover{border-color:#00b4d8}
+.water-qbtn.reset{background:transparent;color:var(--text-dim);border-color:var(--border)}
 
 /* SUPPS */
 .supps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
@@ -1065,17 +1065,19 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
       💪 MI PROGRESO
     </button>
 
-    <div class="water-card">
+    <div class="water-card" id="water-card">
       <div class="water-header">
         <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
-        HIDRATACIÓN
+        💧 HIDRATACIÓN
       </div>
-      <div class="water-cups" id="water-cups"></div>
-      <div class="water-amount" id="water-amount">0.0</div>
-      <div class="water-unit">LITROS HOY</div>
-      <div class="water-btns">
-        <button class="water-btn rem" onclick="adjustWater(-1)">−</button>
-        <button class="water-btn add" onclick="adjustWater(1)">+ 250ml</button>
+      <div class="water-bar-track" id="water-bar-track"><div class="water-bar-fill" id="water-bar-fill" style="width:0%"></div></div>
+      <div class="water-amount-txt" id="water-amount-txt">0ml / 2500ml</div>
+      <div class="water-quick-row">
+        <button class="water-qbtn" onclick="addWater(250)">+250ml</button>
+        <button class="water-qbtn" onclick="addWater(500)">+500ml</button>
+        <button class="water-qbtn" onclick="addWater(750)">+750ml</button>
+        <button class="water-qbtn" onclick="addWater(1000)">+1L</button>
+        <button class="water-qbtn reset" onclick="resetWater()">Reset</button>
       </div>
     </div>
 
@@ -1538,8 +1540,9 @@ const saveTodayLog=e=>{
   localStorage.setItem(uk(`log_${TODAY}`),JSON.stringify(e));
   syncPushLog(TODAY,e);
 };
-const getWater=()=>parseInt(localStorage.getItem(uk(`water_${TODAY}`))||'0');
-const saveWater=c=>localStorage.setItem(uk(`water_${TODAY}`),String(c));
+const getWaterMl=()=>parseInt(localStorage.getItem(uk(`water_${TODAY}`))||'0');
+const saveWaterMl=ml=>localStorage.setItem(uk(`water_${TODAY}`),String(ml));
+const getWaterTarget=()=>(CU&&CU.waterTarget)||2500;
 const getSupps=()=>{const d=localStorage.getItem(uk(`supps_${TODAY}`));return d?JSON.parse(d):{};};
 const saveSupps=s=>localStorage.setItem(uk(`supps_${TODAY}`),JSON.stringify(s));
 const getReadiness=()=>{const d=localStorage.getItem(uk(`readiness_${TODAY}`));return d?JSON.parse(d):null;};
@@ -2254,14 +2257,18 @@ function renderMacroDash(){
   }).join('');
 }
 
-// ── WATER ──
+// ── WATER: HP-bar style hydration tracker ──
 function renderWater(){
-  const cups=getWater();
-  document.getElementById('water-amount').textContent=(cups*.25).toFixed(1);
-  const el=document.getElementById('water-cups');el.innerHTML='';
-  for(let i=0;i<8;i++){const d=document.createElement('div');d.className='water-cup'+(i<cups?' filled':'');d.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>`;el.appendChild(d);}
+  const ml=getWaterMl(),target=getWaterTarget(),met=ml>=target;
+  const pct=Math.min(100,Math.round(ml/target*100));
+  document.getElementById('water-bar-fill').style.width=pct+'%';
+  document.getElementById('water-bar-track').classList.toggle('goal-met',met);
+  const txt=document.getElementById('water-amount-txt');
+  txt.textContent=met?'¡Meta lograda! 💧':`${ml}ml / ${target}ml`;
+  txt.classList.toggle('goal-met',met);
 }
-function adjustWater(d){saveWater(Math.max(0,Math.min(16,getWater()+d)));renderWater();}
+function addWater(ml){saveWaterMl(getWaterMl()+ml);renderWater();}
+function resetWater(){saveWaterMl(0);renderWater();}
 
 // ── SUPPS ──
 function renderSupps(){
