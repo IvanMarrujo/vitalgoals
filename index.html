@@ -1246,7 +1246,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
   ['pointerdown','touchstart','keydown'].forEach(ev=>window.addEventListener(ev,markInteracted,{passive:true}));
 })();
 
-// ── SPLASH: Three.js cinematic intro (logo texture → procedural V → CSS fallback) ──
+// ── SPLASH: Three.js cinematic intro (logo texture plane, AdditiveBlending + particles) ──
 (function(){
   const splashEl=document.getElementById('splash-screen');
   const logoTextEl=document.getElementById('splash-logo-text');
@@ -1266,26 +1266,34 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
   }
 
   function runTextFadeAndMessages(){
-    setTimeout(()=>{logoTextEl.style.transition='opacity .8s ease';logoTextEl.style.opacity=1;},800);
-    setTimeout(()=>{taglineEl.style.transition='opacity .8s ease';taglineEl.style.opacity=1;},1000);
+    setTimeout(()=>{logoTextEl.style.transition='opacity .8s ease';logoTextEl.style.opacity=1;},900);
+    setTimeout(()=>{taglineEl.style.transition='opacity .8s ease';taglineEl.style.opacity=1;},1100);
     let mi=0;
     const showNextMsg=()=>{
       msgEl.style.transition='opacity .25s ease';
       msgEl.style.opacity=0;
       setTimeout(()=>{msgEl.textContent=MSGS[mi%MSGS.length];msgEl.style.opacity=1;mi++;},150);
     };
-    setTimeout(()=>{showNextMsg();msgInterval=setInterval(showNextMsg,700);},1200);
-    setTimeout(()=>{if(msgInterval)clearInterval(msgInterval);},3500);
+    setTimeout(()=>{showNextMsg();msgInterval=setInterval(showNextMsg,700);},1300);
+    setTimeout(()=>{if(msgInterval)clearInterval(msgInterval);},3800);
   }
 
-  function runCssFallback(){
-    logoTextEl.style.transition='opacity .8s ease';
-    logoTextEl.style.opacity=1;
-    taglineEl.style.transition='opacity .8s ease';
-    setTimeout(()=>{taglineEl.style.opacity=1;},300);
+  let timelineStarted=false;
+  // Shared text/tagline/message timeline + fade-out/hide — runs exactly once,
+  // regardless of which path (3D success, texture failure, or no-CDN) triggers it.
+  function startTimeline(){
+    if(timelineStarted)return;
+    timelineStarted=true;
     runTextFadeAndMessages();
-    setTimeout(()=>{splashEl.style.opacity=0;},3500);
-    setTimeout(hideSplash,4100);
+    setTimeout(()=>{splashEl.style.opacity=0;},3800);
+    setTimeout(hideSplash,4300);
+  }
+
+  // Fallback if Three.js/CDN or the texture fails: text-only CSS fade, no 3D.
+  function runCssFallback(){
+    const canvas=document.getElementById('splash-canvas');
+    if(canvas)canvas.style.display='none';
+    startTimeline();
   }
 
   if(typeof THREE==='undefined'||window.__threeLoadFailed){
@@ -1324,83 +1332,52 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     }
     const particleGeo=new THREE.BufferGeometry();
     particleGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
-    const particles=new THREE.Points(particleGeo,new THREE.PointsMaterial({size:0.02,color:0x00c853,transparent:true,opacity:0.4}));
+    const particles=new THREE.Points(particleGeo,new THREE.PointsMaterial({size:0.025,color:0x00c853,transparent:true,opacity:0.35}));
     scene.add(particles);
 
-    const logoGroup=new THREE.Group();
-    logoGroup.rotation.y=-0.3;
-    scene.add(logoGroup);
-
-    let usingTexture=false;
-    let mainMesh=null,glowMesh=null;
-    let logoTargets=[]; // [{mat,target}]
-
-    function buildProceduralV(){
-      const strokeW=0.15,extrude={depth:0.3,bevelEnabled:false};
-      const leftArm=new THREE.Shape();
-      leftArm.moveTo(-1.0,1.0);leftArm.lineTo(-1.0+strokeW*1.4,1.0);
-      leftArm.lineTo(0.15,-0.9);leftArm.lineTo(0.15-strokeW*1.4,-0.9);leftArm.closePath();
-      const rightArm=new THREE.Shape();
-      rightArm.moveTo(0.15,-0.9);rightArm.lineTo(0.15+strokeW*1.4,-0.9);
-      rightArm.lineTo(1.0,1.0);rightArm.lineTo(1.0-strokeW*1.4,1.0);rightArm.closePath();
-      const leaf=new THREE.Shape();
-      leaf.moveTo(0.55,0.75);
-      leaf.bezierCurveTo(0.55,1.35,1.05,1.55,1.35,1.35);
-      leaf.bezierCurveTo(1.05,1.55,0.85,1.05,0.55,0.75);
-
-      const mat=new THREE.MeshPhongMaterial({color:0x00c853,emissive:0x004d20,shininess:100,transparent:true,opacity:0});
-      [leftArm,rightArm,leaf].forEach(shape=>{
-        const mesh=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,extrude),mat);
-        logoGroup.add(mesh);
-      });
-      logoTargets=[{mat,target:1}];
-      usingTexture=false;
-    }
+    let mainMesh=null,glowMesh=null,logoReady=false;
 
     function buildTexturePlanes(texture){
       const glowMat=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
-      glowMesh=new THREE.Mesh(new THREE.PlaneGeometry(2.8,2.8),glowMat);
-      glowMesh.position.z=-0.05;
+      glowMesh=new THREE.Mesh(new THREE.PlaneGeometry(3.0,3.0),glowMat);
+      glowMesh.position.z=-0.1;
       const mainMat=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
       mainMesh=new THREE.Mesh(new THREE.PlaneGeometry(2.5,2.5),mainMat);
-      logoGroup.add(glowMesh,mainMesh);
-      logoTargets=[{mat:mainMat,target:1},{mat:glowMat,target:0.15}];
-      usingTexture=true;
+      scene.add(glowMesh,mainMesh);
+      logoReady=true;
     }
 
-    // particles/lights render immediately; texture loads async and just populates
-    // logoTargets whenever it's ready — the render loop and 0-4100ms timeline below
-    // don't wait on it, so orbiting particles are visible from t=0 either way.
-    new THREE.TextureLoader().load('/assets/vhg-logo.png',buildTexturePlanes,undefined,buildProceduralV);
+    // particles/lights render immediately; texture loads async — the render loop and
+    // the 0-4300ms timeline below don't wait on it, so particles orbit from t=0 either
+    // way. If the texture fails to load, drop straight to the CSS-only fallback (no 3D).
+    new THREE.TextureLoader().load('/assets/vhg-logo.png',buildTexturePlanes,undefined,()=>{
+      cleanup();
+      runCssFallback();
+    });
 
     let rafId=null;
     const startTime=performance.now();
     animate();
-    runTextFadeAndMessages();
-    setTimeout(()=>{splashEl.style.opacity=0;},3500);
-    setTimeout(()=>{hideSplash();cleanup();},4100);
+    startTimeline();
+    setTimeout(cleanup,4300);
 
     function animate(){
       rafId=requestAnimationFrame(animate);
-      const elapsed=performance.now()-startTime;
+      const t=performance.now()-startTime;
 
-      if(elapsed<1300){
-        const p=Math.min(1,Math.max(0,(elapsed-500)/800));
-        logoTargets.forEach(({mat,target})=>{mat.opacity=p*target;});
-        logoGroup.rotation.y=-0.3+p*0.3;
-      }else if(usingTexture){
+      if(logoReady){
+        if(t>=400){
+          const p=Math.min(1,(t-400)/800);
+          mainMesh.material.opacity=p;
+          glowMesh.material.opacity=p*0.12;
+        }
         mainMesh.rotation.y+=0.004;
-        const t=elapsed*0.001;
-        const s=1+Math.sin(t)*0.03;
-        mainMesh.scale.set(s,s,s);
-        const s2=1+Math.sin(t+0.6)*0.03;
-        glowMesh.scale.set(s2,s2,s2);
-      }else{
-        logoGroup.rotation.y+=0.003;
+        mainMesh.scale.setScalar(1+Math.sin(t*0.002)*0.03);
+        glowMesh.scale.setScalar(1+Math.sin(t*0.002+1)*0.05);
       }
 
       particles.rotation.y+=0.0005;
-      lightGreen.intensity=2+Math.sin(elapsed*0.002)*0.8;
+      lightGreen.intensity=2+Math.sin(t*0.003)*0.8;
 
       renderer.render(scene,camera);
     }
