@@ -430,17 +430,20 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 .log-del svg{width:12px;height:12px;stroke:var(--text-dim);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* CONNECT DEVICE */
-.device-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
-.device-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px 10px;text-align:center;transition:all .2s}
+.device-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.device-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px 8px;text-align:center;transition:all .2s}
 .device-card.connected{border-color:var(--neon);background:var(--neon-dim)}
-.device-icon svg{width:24px;height:24px;stroke:var(--text-dim);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
-.device-card.connected .device-icon svg{stroke:var(--neon)}
+.device-icon-emoji{font-size:24px;margin-bottom:8px}
 .device-name{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
 .device-status{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:700;margin-bottom:10px}
 .device-card.connected .device-status{color:var(--neon)}
-.device-connect-btn{width:100%;padding:7px 4px;background:transparent;border:1px solid var(--border-a);border-radius:7px;color:var(--neon);font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:1px;cursor:pointer;transition:all .18s}
+.device-connect-btn{width:100%;padding:7px 4px;background:transparent;border:1px solid var(--border-a);border-radius:7px;color:var(--neon);font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .18s;margin-bottom:6px}
+.device-connect-btn:last-child{margin-bottom:0}
 .device-connect-btn:hover{background:var(--neon-dim)}
 .device-card.connected .device-connect-btn{border-color:rgba(255,45,45,.3);color:var(--red)}
+.device-connect-btn.ghost{border-color:var(--border);color:var(--text-dim)}
+.device-connect-btn.ghost:hover{background:var(--card)}
+.device-ble-unsupported{font-size:10px;color:var(--text-dim);line-height:1.4;padding:6px 0}
 
 /* PATTERN INSIGHTS */
 .pattern-card{display:flex;align-items:flex-start;gap:12px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
@@ -870,7 +873,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 
   <!-- SCANNER PAGE -->
   <div class="page active" id="page-scan">
-    <div class="sec-head"><div class="sec-title">¿QUÉ ACTIVIDAD REALIZARÁS HOY?</div><div class="sec-line"></div></div>
+    <div class="sec-head"><div class="sec-title">¿QUÉ TE TOCA HOY?</div><div class="sec-line"></div></div>
 
     <div class="session-row">
       <button class="sess-btn" data-session="PESAS" onclick="setSession(this)">
@@ -1245,7 +1248,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 <div class="bottom-nav" id="bottom-nav">
   <button class="nav-btn active" onclick="showPage('scan',this)">
     <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-    <span class="nav-label">Scanner</span>
+    <span class="nav-label">Vital Food Intel</span>
   </button>
   <button class="nav-btn" onclick="showPage('log',this)">
     <div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
@@ -2647,37 +2650,50 @@ function renderProfile(){
   document.getElementById('s-score').textContent=(sc.length>0?Math.round(sc.reduce((s,v)=>s+v,0)/sc.length):0)+'%';
 }
 
-// ── CONNECT DEVICE: Oura has a real auth endpoint, the rest are a visual
-// shell (mock toggle + toast) until their integrations are built ──
-const DEVICES=[
-  {id:'whoop',name:'Whoop',real:false},
-  {id:'oura',name:'Oura Ring',real:true},
-  {id:'garmin',name:'Garmin',real:false},
-  {id:'applewatch',name:'Apple Watch',real:false},
-  {id:'fitbit',name:'Fitbit',real:false},
+// ── CONNECT DEVICE: generic Web Bluetooth pairing for wearables.
+// Oura additionally gets a real OAuth entry point once that's built. ──
+const WEARABLES=[
+  {id:'oura',name:'Oura',icon:'💍',hasOAuth:true},
+  {id:'vitalring',name:'VitalRing',icon:'💍',hasOAuth:false},
+  {id:'fitnessband',name:'Fitness Band',icon:'⌚',hasOAuth:false},
 ];
-const getDeviceConns=()=>{const d=localStorage.getItem(uk('device_conns'));return d?JSON.parse(d):{};};
-const saveDeviceConns=c=>localStorage.setItem(uk('device_conns'),JSON.stringify(c));
+const getBleConns=()=>{const d=localStorage.getItem('vhg_ble_device');return d?JSON.parse(d):{};};
+const saveBleConns=c=>localStorage.setItem('vhg_ble_device',JSON.stringify(c));
 function renderDevices(){
-  const conns=getDeviceConns();
-  document.getElementById('device-grid').innerHTML=DEVICES.map(d=>{
+  const conns=getBleConns();
+  const bleSupported=!!navigator.bluetooth;
+  document.getElementById('device-grid').innerHTML=WEARABLES.map(d=>{
     const on=!!conns[d.id];
-    const action=d.real&&!on?`window.location.href='/api/oura?action=auth'`:`toggleDevice('${d.id}')`;
+    const bleBtn=bleSupported
+      ?`<button class="device-connect-btn" onclick="${on?`disconnectWearable('${d.id}')`:`connectWearable('${d.id}')`}">${on?'DESCONECTAR':'CONECTAR VÍA BLUETOOTH'}</button>`
+      :`<div class="device-ble-unsupported">Requiere Chrome en Android</div>`;
+    const ouraBtn=d.hasOAuth?`<button class="device-connect-btn ghost" onclick="window.location.href='/api/oura?action=auth'">CONECTAR CON CUENTA OURA</button>`:'';
     return`<div class="device-card ${on?'connected':''}">
-      <div class="device-icon"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>
+      <div class="device-icon-emoji">${d.icon}</div>
       <div class="device-name">${d.name}</div>
-      <div class="device-status">${on?'CONECTADO':'DESCONECTADO'}</div>
-      <button class="device-connect-btn" onclick="${action}">${on?'DESCONECTAR':'CONECTAR'}</button>
+      <div class="device-status">${on?'CONECTADO ✓':'SIN CONECTAR'}</div>
+      ${bleBtn}
+      ${ouraBtn}
     </div>`;
   }).join('');
 }
-function toggleDevice(id){
-  const d=DEVICES.find(x=>x.id===id);
-  const conns=getDeviceConns();
-  if(!conns[id]&&d.real){window.location.href='/api/oura?action=auth';return;}
-  if(!conns[id]&&!d.real){showToast('Próximamente');return;}
-  conns[id]=!conns[id];
-  saveDeviceConns(conns);
+async function connectWearable(id){
+  if(!navigator.bluetooth){showToast('Bluetooth no disponible en este navegador');return;}
+  try{
+    const device=await navigator.bluetooth.requestDevice({acceptAllDevices:true});
+    const conns=getBleConns();
+    conns[id]=true;
+    saveBleConns(conns);
+    renderDevices();
+    showToast(`${device.name||'Dispositivo'} conectado`);
+  }catch(e){
+    if(e.name!=='NotFoundError')showToast('No se pudo conectar por Bluetooth');
+  }
+}
+function disconnectWearable(id){
+  const conns=getBleConns();
+  delete conns[id];
+  saveBleConns(conns);
   renderDevices();
   showToast('Desconectado');
 }
