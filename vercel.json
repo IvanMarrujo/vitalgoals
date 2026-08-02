@@ -6,7 +6,8 @@
     { "src": "manifest.json", "use": "@vercel/static" },
     { "src": "sw.js", "use": "@vercel/static" },
     { "src": "icon-192.png", "use": "@vercel/static" },
-    { "src": "icon-512.png", "use": "@vercel/static" }
+    { "src": "icon-512.png", "use": "@vercel/static" },
+    { "src": "assets/(.*)", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
@@ -14,6 +15,7 @@
     { "src": "/sw.js", "dest": "/sw.js" },
     { "src": "/icon-192.png", "dest": "/icon-192.png" },
     { "src": "/icon-512.png", "dest": "/icon-512.png" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
