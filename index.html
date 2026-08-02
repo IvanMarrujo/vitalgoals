@@ -2455,38 +2455,39 @@ function drawShareCard(){
   g.addColorStop(0,'#00c853');g.addColorStop(.5,'#ff4d00');g.addColorStop(1,'#8b5cf6');
   ctx.fillStyle=g;ctx.fillRect(0,0,W,10);
   // Brand
-  ctx.fillStyle='#f5f5f5';ctx.font='900 58px Barlow Condensed, Arial Black, sans-serif';ctx.fillText('VITAL HEALTH GOALS',80,220);
-  ctx.fillStyle='#00c853';ctx.font='700 52px Barlow Condensed, Arial, sans-serif';ctx.fillText('MY WIN OF TODAY',80,316);
+  ctx.fillStyle='#f5f5f5';ctx.font='700 54px Barlow Condensed, Arial, sans-serif';ctx.letterSpacing='4px';ctx.fillText('VITAL HEALTH GOALS',80,220);ctx.letterSpacing='0px';
+  ctx.fillStyle='#00c853';ctx.font='600 26px Barlow Condensed, Arial, sans-serif';ctx.letterSpacing='6px';ctx.fillText('VHG',80,256);ctx.letterSpacing='0px';
+  ctx.fillStyle='#888';ctx.font='500 44px Barlow Condensed, Arial, sans-serif';ctx.letterSpacing='2px';ctx.fillText('MY WIN OF TODAY',80,316);ctx.letterSpacing='0px';
   // Divider
   ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(80,356,W-160,1);
   // Calories
-  ctx.fillStyle='#00c853';ctx.font='900 260px Barlow Condensed, Arial Black, sans-serif';ctx.fillText(tc,80,640);
-  ctx.fillStyle='#444';ctx.font='600 56px Barlow Condensed, Arial, sans-serif';ctx.fillText('KILOCALORÍAS',80,716);
+  ctx.fillStyle='#00c853';ctx.font='800 260px Barlow Condensed, Arial, sans-serif';ctx.fillText(tc,80,640);
+  ctx.fillStyle='#555';ctx.font='500 50px Barlow Condensed, Arial, sans-serif';ctx.letterSpacing='4px';ctx.fillText('KILOCALORÍAS',80,716);ctx.letterSpacing='0px';
   // Macros
   [[tp+'g','PROTEÍNA','#00c853'],[tca+'g','CARBOS','#ff4d00'],[tf+'g','GRASAS','#8b5cf6']].forEach(([v,l,c],i)=>{
     const x=80+i*310;
-    ctx.fillStyle=c;ctx.font='900 110px Barlow Condensed, Arial Black, sans-serif';ctx.fillText(v,x,920);
-    ctx.fillStyle='#444';ctx.font='600 38px Barlow Condensed, Arial, sans-serif';ctx.fillText(l,x,976);
+    ctx.fillStyle=c;ctx.font='800 110px Barlow Condensed, Arial, sans-serif';ctx.fillText(v,x,920);
+    ctx.fillStyle='#555';ctx.font='500 34px Barlow Condensed, Arial, sans-serif';ctx.letterSpacing='3px';ctx.fillText(l,x,976);ctx.letterSpacing='0px';
   });
   ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(80,1010,W-160,1);
   // Match Score
   if(avgScore>0){
     const sc_c=avgScore>=80?'#00c853':avgScore>=50?'#ffd000':'#ff2d2d';
-    ctx.fillStyle=sc_c;ctx.font='900 180px Barlow Condensed, Arial Black, sans-serif';ctx.fillText(avgScore+'%',80,1210);
-    ctx.fillStyle='#444';ctx.font='600 44px Barlow Condensed, Arial, sans-serif';ctx.fillText('MATCH SCORE PROMEDIO',80,1272);
+    ctx.fillStyle=sc_c;ctx.font='800 180px Barlow Condensed, Arial, sans-serif';ctx.fillText(avgScore+'%',80,1210);
+    ctx.fillStyle='#555';ctx.font='500 40px Barlow Condensed, Arial, sans-serif';ctx.letterSpacing='3px';ctx.fillText('MATCH SCORE PROMEDIO',80,1272);ctx.letterSpacing='0px';
   }
   // Readiness
   if(r){
     ctx.fillStyle='rgba(52,199,89,.06)';ctx.beginPath();ctx.roundRect(80,1310,W-160,180,20);ctx.fill();
-    ctx.fillStyle='#00c853';ctx.font='700 36px Barlow Condensed, Arial, sans-serif';ctx.fillText('READINESS DEL DÍA',120,1376);
-    ctx.fillStyle='#f5f5f5';ctx.font='900 96px Barlow Condensed, Arial Black, sans-serif';ctx.fillText(r.score+'/100',120,1462);
+    ctx.fillStyle='#00c853';ctx.font='600 34px Barlow Condensed, Arial, sans-serif';ctx.letterSpacing='3px';ctx.fillText('READINESS DEL DÍA',120,1376);ctx.letterSpacing='0px';
+    ctx.fillStyle='#f5f5f5';ctx.font='800 96px Barlow Condensed, Arial, sans-serif';ctx.fillText(r.score+'/100',120,1462);
   }
   // Footer
   const now=new Date();
   const dateStr=now.toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
-  ctx.fillStyle='#2a2a2a';ctx.font='600 40px Barlow Condensed, Arial, sans-serif';
-  ctx.fillText(dateStr.toUpperCase()+' · '+CU.name.toUpperCase(),80,H-140);
-  ctx.fillStyle='#1a1a1a';ctx.font='700 52px Barlow Condensed, Arial, sans-serif';ctx.fillText('vitalgoals.app',80,H-70);
+  ctx.fillStyle='#2a2a2a';ctx.font='500 40px Barlow Condensed, Arial, sans-serif';ctx.letterSpacing='1px';
+  ctx.fillText(dateStr.toUpperCase()+' · '+CU.name.toUpperCase(),80,H-140);ctx.letterSpacing='0px';
+  ctx.fillStyle='#1a1a1a';ctx.font='600 48px Barlow Condensed, Arial, sans-serif';ctx.letterSpacing='2px';ctx.fillText('vitalgoals.com.mx',80,H-70);ctx.letterSpacing='0px';
   // Bottom bar
   ctx.fillStyle=g;ctx.fillRect(0,H-10,W,10);
 }
@@ -2517,19 +2518,7 @@ function shareToFB(){
   });
 }
 
-// ── PROGRESS CARD (selfie + streak + stats + IA/FIRE quote) ──
-const FIRE_QUOTES=[
-  "YOU'RE A TRUE WINNER.",
-  "NO DAYS OFF. NO EXCUSES.",
-  "THE GRIND DOESN'T LIE.",
-  "BUILT DIFFERENT. PROVEN DAILY.",
-  "YOUR FUTURE SELF IS WATCHING.",
-  "CONSISTENCY IS THE CHEAT CODE.",
-  "EARN IT. EVERY. SINGLE. DAY.",
-  "RESULTS DON'T CARE ABOUT FEELINGS.",
-  "THE BODY KEEPS THE SCORE.",
-  "SHOW UP. LEVEL UP. REPEAT.",
-];
+// ── PROGRESS CARD (selfie + streak + stats + IA/motivational quote) ──
 let pcamStream=null,progressSelfieImg=null,progressQuoteAI=null,progressQuoteFire=null,quoteMode='ai';
 
 async function openProgressCam(){
@@ -2633,7 +2622,7 @@ async function fetchProgressQuoteAI(streak,protAvg,calAvg){
 async function generateProgressCard(){
   showLoad('GENERANDO','Armando tu progress card...');
   const{protAvg,calAvg,streak}=progressStats();
-  progressQuoteFire=FIRE_QUOTES[Math.floor(Math.random()*FIRE_QUOTES.length)];
+  progressQuoteFire=MOTIVATIONAL[Math.floor(Math.random()*MOTIVATIONAL.length)];
   progressQuoteAI=await fetchProgressQuoteAI(streak,protAvg,calAvg);
   quoteMode=progressQuoteAI?'ai':'fire';
   document.getElementById('pquote-tog-ai').classList.toggle('active',quoteMode==='ai');
@@ -2682,8 +2671,10 @@ function drawProgressCard(){
   ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
   // Top left logo
   ctx.textAlign='left';ctx.textBaseline='top';
-  ctx.fillStyle='#00c853';ctx.font='900 48px "Barlow Condensed", Arial Black, sans-serif';
-  ctx.fillText('VITAL HEALTH GOALS',60,50);
+  ctx.fillStyle='#00c853';ctx.font='700 44px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='3px';
+  ctx.fillText('VITAL HEALTH GOALS',60,50);ctx.letterSpacing='0px';
+  ctx.fillStyle='rgba(0,200,83,.7)';ctx.font='600 22px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='4px';
+  ctx.fillText('VHG',60,98);ctx.letterSpacing='0px';
   // Top right date
   const dateStr=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
   ctx.textAlign='right';ctx.fillStyle='#ccc';ctx.font='500 28px "Noto Sans", Arial, sans-serif';
@@ -2705,8 +2696,8 @@ function drawProgressCard(){
   cols.forEach(([v,l],i)=>{
     const cx=60+colW*i+colW/2;
     ctx.textAlign='center';
-    ctx.fillStyle='#fff';ctx.font='900 60px "Barlow Condensed", Arial Black, sans-serif';ctx.fillText(v,cx,statsY+92);
-    ctx.fillStyle='#999';ctx.font='600 22px "Barlow Condensed", Arial, sans-serif';ctx.fillText(l,cx,statsY+130);
+    ctx.fillStyle='#fff';ctx.font='700 56px "Barlow Condensed", Arial, sans-serif';ctx.fillText(v,cx,statsY+92);
+    ctx.fillStyle='#999';ctx.font='500 20px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='2px';ctx.fillText(l,cx,statsY+130);ctx.letterSpacing='0px';
   });
   // Motivational quote
   const quote=(quoteMode==='ai'&&progressQuoteAI)?progressQuoteAI:progressQuoteFire;
@@ -2715,8 +2706,8 @@ function drawProgressCard(){
     wrapCanvasText(ctx,quote,W/2,statsY-70,W-160,46,2);
   }
   // Footer
-  ctx.fillStyle='#aaa';ctx.font='500 26px "Noto Sans", Arial, sans-serif';
-  ctx.fillText('vitalgoals.vercel.app',W/2,H-40);
+  ctx.fillStyle='#aaa';ctx.font='500 26px "Noto Sans", Arial, sans-serif';ctx.letterSpacing='1px';
+  ctx.fillText('vitalgoals.com.mx',W/2,H-40);ctx.letterSpacing='0px';
 }
 function downloadProgressCard(){downloadCanvasImage('progress-canvas','vhg-progreso.png');}
 function shareProgressCard(){shareCanvasImage('progress-canvas',`Mi Progreso — ${BRAND_NAME}`);}
