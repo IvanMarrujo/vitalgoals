@@ -1,4 +1,8 @@
 const ALLOWED_ORIGINS = [
+  'https://vitalgoals.com.mx',
+  'https://vitalgoals.vercel.app',
+  'https://vitalgoals-ivan-marrujo-s-projects.vercel.app',
+  'https://vitalgoals-git-main-ivan-marrujo-s-projects.vercel.app',
   'https://gainz-green.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173',
