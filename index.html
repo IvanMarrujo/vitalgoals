@@ -75,11 +75,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 }
 body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 2px rgba(52,199,89,.15),0 0 14px 2px rgba(52,199,89,.15);border-color:rgba(52,199,89,.35)}
 
-/* SPLASH: Three.js cinematic intro (logo texture plane, procedural-V/CSS fallbacks) */
-#splash-screen{position:fixed;inset:0;z-index:9999;background:#0a1628;display:flex;align-items:center;justify-content:center;
+/* SPLASH: random background video intro */
+#splash-screen{position:fixed;inset:0;z-index:9999;background:#0a1628;display:flex;align-items:center;justify-content:center;overflow:hidden;
   transition:opacity .6s ease,visibility .6s ease}
 #splash-screen.hide{opacity:0;visibility:hidden;pointer-events:none}
-#splash-canvas{position:absolute;inset:0;top:0;left:0;width:100%;height:100%}
+#splash-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+#splash-video-overlay{position:absolute;inset:0;background:rgba(10,22,40,0.8);z-index:1}
 #splash-ui{position:relative;z-index:2;text-align:center;pointer-events:none}
 #splash-logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:48px;color:#fff;letter-spacing:8px;opacity:0}
 #splash-tagline{font-family:'Noto Sans',sans-serif;font-size:14px;color:#8892a4;margin-top:8px;opacity:0}
@@ -667,9 +668,12 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 <!-- FRAME GLOW: ozee neon border, active until first interaction -->
 <div class="frame-glow" aria-hidden="true"></div>
 
-<!-- SPLASH: Three.js cinematic intro, 4.1s on app open -->
+<!-- SPLASH: random background video intro -->
 <div id="splash-screen" aria-hidden="true">
-  <canvas id="splash-canvas"></canvas>
+  <video id="splash-video" autoplay loop muted playsinline>
+    <source id="splash-video-src" src="" type="video/mp4">
+  </video>
+  <div id="splash-video-overlay"></div>
   <div id="splash-ui">
     <div id="splash-logo-text">VITAL HEALTH GOALS</div>
     <div id="splash-tagline">Tu nutrición. Tu ciencia. Tu vida.</div>
@@ -1364,7 +1368,6 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 <input type="file" id="file-input" accept="image/*" onchange="handleFile(event)">
 <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleFile(event)">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" onerror="window.__threeLoadFailed=true"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" onerror="window.__jspdfLoadFailed=true"></script>
 <script>
 // ── FRAME GLOW: stops pulsing on first interaction ──
@@ -1376,9 +1379,11 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
   ['pointerdown','touchstart','keydown'].forEach(ev=>window.addEventListener(ev,markInteracted,{passive:true}));
 })();
 
-// ── SPLASH: Three.js cinematic intro (logo texture plane, AdditiveBlending + particles) ──
+// ── SPLASH: random background video + typewriter intro ──
 (function(){
   const splashEl=document.getElementById('splash-screen');
+  const videoEl=document.getElementById('splash-video');
+  const videoSrcEl=document.getElementById('splash-video-src');
   const logoTextEl=document.getElementById('splash-logo-text');
   const taglineEl=document.getElementById('splash-tagline');
   const msgEl=document.getElementById('splash-loading-msg');
@@ -1387,9 +1392,22 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     'Analizando componentes para tu bienestar...',
     'Preparando tu experiencia personalizada...',
     'Sincronizando tus objetivos de salud...',
+    'Calculando tus macros ideales...',
+    'Ajustando tu plan a tus objetivos...',
+    'Conectando con tu coach de nutrición...',
     'Vital Health Goals listo para ti...'
   ];
   let msgLoopActive=false;
+
+  const SPLASH_VIDEOS=[
+    '/assets/15940134_1080_1920_30fps.mp4',
+    '/assets/7876926-uhd_2160_4096_25fps.mp4',
+    '/assets/8691736-uhd_2160_4096_24fps.mp4',
+  ];
+  const randomVideo=SPLASH_VIDEOS[Math.floor(Math.random()*SPLASH_VIDEOS.length)];
+  videoSrcEl.src=randomVideo;
+  videoEl.load();
+  videoEl.play().catch(()=>{});
 
   function hideSplash(){
     splashEl.classList.add('hide');
@@ -1440,126 +1458,9 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     setTimeout(()=>{msgLoopActive=false;},5800);
   }
 
-  let timelineStarted=false;
-  // Shared text/tagline/message timeline + fade-out/hide — runs exactly once,
-  // regardless of which path (3D success, texture failure, or no-CDN) triggers it.
-  function startTimeline(){
-    if(timelineStarted)return;
-    timelineStarted=true;
-    runTextFadeAndMessages();
-    setTimeout(()=>{splashEl.style.opacity=0;},5800);
-    setTimeout(hideSplash,6300);
-  }
-
-  // Fallback if Three.js/CDN or the texture fails: text-only CSS fade, no 3D.
-  function runCssFallback(){
-    const canvas=document.getElementById('splash-canvas');
-    if(canvas)canvas.style.display='none';
-    startTimeline();
-  }
-
-  if(typeof THREE==='undefined'||window.__threeLoadFailed){
-    runCssFallback();
-    return;
-  }
-
-  try{
-    const canvas=document.getElementById('splash-canvas');
-    const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-    renderer.setPixelRatio(window.devicePixelRatio||1);
-    renderer.setSize(window.innerWidth,window.innerHeight);
-    renderer.setClearColor(0x000000,0);
-
-    const scene=new THREE.Scene();
-    const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,100);
-    camera.position.z=5;
-
-    scene.add(new THREE.AmbientLight(0xffffff,0.3));
-    const lightGreen=new THREE.PointLight(0x00c853,2,10);
-    lightGreen.position.set(2,2,4);
-    scene.add(lightGreen);
-    const lightWhite=new THREE.PointLight(0xffffff,1,10);
-    lightWhite.position.set(-2,-2,3);
-    scene.add(lightWhite);
-
-    const PARTICLE_COUNT=1200;
-    const positions=new Float32Array(PARTICLE_COUNT*3);
-    for(let i=0;i<PARTICLE_COUNT;i++){
-      const r=8*Math.cbrt(Math.random());
-      const theta=Math.random()*Math.PI*2;
-      const phi=Math.acos(Math.random()*2-1);
-      positions[i*3]=r*Math.sin(phi)*Math.cos(theta);
-      positions[i*3+1]=r*Math.sin(phi)*Math.sin(theta);
-      positions[i*3+2]=r*Math.cos(phi);
-    }
-    const particleGeo=new THREE.BufferGeometry();
-    particleGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
-    const particles=new THREE.Points(particleGeo,new THREE.PointsMaterial({size:0.025,color:0x00c853,transparent:true,opacity:0.35}));
-    scene.add(particles);
-
-    let mainMesh=null,glowMesh=null,logoReady=false;
-
-    function buildTexturePlanes(texture){
-      const glowMat=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:0,blending:THREE.NormalBlending,depthWrite:false});
-      glowMesh=new THREE.Mesh(new THREE.PlaneGeometry(3.0,3.0),glowMat);
-      glowMesh.position.z=-0.1;
-      const mainMat=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:0,blending:THREE.NormalBlending,depthWrite:false});
-      mainMesh=new THREE.Mesh(new THREE.PlaneGeometry(2.5,2.5),mainMat);
-      scene.add(glowMesh,mainMesh);
-      logoReady=true;
-    }
-
-    // particles/lights render immediately; texture loads async — the render loop and
-    // the 0-6300ms timeline below don't wait on it, so particles orbit from t=0 either
-    // way. If the texture fails to load, drop straight to the CSS-only fallback (no 3D).
-    new THREE.TextureLoader().load('/assets/vhg-logo.png',buildTexturePlanes,undefined,()=>{
-      cleanup();
-      runCssFallback();
-    });
-
-    let rafId=null;
-    const startTime=performance.now();
-    animate();
-    startTimeline();
-    setTimeout(cleanup,6300);
-
-    function animate(){
-      rafId=requestAnimationFrame(animate);
-      const t=performance.now()-startTime;
-
-      if(logoReady){
-        if(t>=400){
-          const p=Math.min(1,(t-400)/800);
-          mainMesh.material.opacity=p;
-          glowMesh.material.opacity=p*0.12;
-        }
-        mainMesh.rotation.y+=0.004;
-        mainMesh.scale.setScalar(1+Math.sin(t*0.002)*0.03);
-        glowMesh.scale.setScalar(1+Math.sin(t*0.002+1)*0.05);
-      }
-
-      particles.rotation.y+=0.0005;
-      lightGreen.intensity=2+Math.sin(t*0.003)*0.8;
-
-      renderer.render(scene,camera);
-    }
-
-    function onResize(){
-      camera.aspect=window.innerWidth/window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth,window.innerHeight);
-    }
-    window.addEventListener('resize',onResize);
-
-    function cleanup(){
-      if(rafId)cancelAnimationFrame(rafId);
-      window.removeEventListener('resize',onResize);
-      renderer.dispose();
-    }
-  }catch(err){
-    console.error('Splash 3D init failed, using CSS fallback',err);
-    runCssFallback();
-  }
+  runTextFadeAndMessages();
+  setTimeout(()=>{splashEl.style.opacity=0;},5800);
+  setTimeout(hideSplash,6300);
 })();
 const BRAND_NAME='VITAL HEALTH GOALS';
 // ── APP KEY (anti-bot header, not a real secret boundary) ──
