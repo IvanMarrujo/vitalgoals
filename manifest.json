@@ -1,11 +1,11 @@
 {
-  "name": "VitalGoals",
-  "short_name": "VitalGoals",
+  "name": "Vital Health Goals",
+  "short_name": "VHG",
   "description": "Tu coach de nutrición deportiva con IA",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#070707",
-  "theme_color": "#34c759",
+  "background_color": "#0a1628",
+  "theme_color": "#00c853",
   "orientation": "portrait",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },

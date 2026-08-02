@@ -1,6 +1,7 @@
-// Generates icon-192.png and icon-512.png using only Node built-ins (fs, zlib) —
-// no canvas/native deps available in this repo. Draws a neon viewfinder-bracket
-// mark on a dark background, echoing the app's existing camera overlay corners.
+// Zero-dependency fallback icon generator (only Node built-ins: fs, zlib). Draws a
+// neon viewfinder-bracket mark on the brand navy background. The committed
+// icon-192.png/icon-512.png are actually resized from the real logo
+// (assets/vhg-logo.png) via Pillow — run this script only if that asset is missing.
 const fs = require('fs');
 const zlib = require('zlib');
 const path = require('path');
@@ -55,8 +56,8 @@ function makePNG(width, height, pixels) {
 
 function drawIcon(size) {
   const pixels = Buffer.alloc(size * size * 4);
-  const bg = [7, 7, 7, 255];
-  const neon = [200, 255, 0, 255];
+  const bg = [10, 22, 40, 255];
+  const neon = [0, 200, 83, 255];
   const setPx = (x, y, color) => {
     if (x < 0 || y < 0 || x >= size || y >= size) return;
     const i = (y * size + x) * 4;
