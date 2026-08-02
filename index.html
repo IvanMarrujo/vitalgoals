@@ -229,6 +229,10 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 .live-cam-wrap{position:relative;background:#000;border-radius:16px;overflow:hidden;margin-bottom:14px;aspect-ratio:4/3;display:none}
 .live-cam-wrap.open{display:block}
 #live-video{width:100%;height:100%;object-fit:cover;display:block}
+/* Idle screensaver — shown until the user taps to grant camera access */
+.cam-idle{position:absolute;inset:0;z-index:5;background:#000;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cam-idle.hidden{display:none}
+.cam-idle-txt{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase}
 .cam-overlay{position:absolute;inset:0;pointer-events:none}
 /* Corner brackets */
 .cam-overlay::before,.cam-overlay::after{content:'';position:absolute;width:32px;height:32px;border-color:var(--neon);border-style:solid;opacity:.8}
@@ -801,7 +805,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 
   <!-- SCANNER PAGE -->
   <div class="page active" id="page-scan">
-    <div class="sec-head"><div class="sec-title">SCANNER</div><div class="sec-line"></div></div>
+    <div class="sec-head"><div class="sec-title">¿QUÉ ACTIVIDAD REALIZARÁS HOY?</div><div class="sec-line"></div></div>
 
     <div class="session-row">
       <button class="sess-btn" data-session="PESAS" onclick="setSession(this)">
@@ -844,6 +848,9 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 
     <!-- Live Camera -->
     <div class="live-cam-wrap" id="live-cam-wrap">
+      <div class="cam-idle" id="cam-idle" onclick="startLiveCamera()">
+        <div class="cam-idle-txt">TOCA PARA ACTIVAR</div>
+      </div>
       <video id="live-video" autoplay playsinline muted></video>
       <div class="cam-overlay">
         <div class="cam-corner-tr"></div>
@@ -1688,7 +1695,6 @@ function showPage(p,btn){
   if(p==='log'){renderLog();renderSupps();renderWater();realtimeCoach();maybeShowInstallBanner();}
   if(p==='profile')renderProfile();
   if(p!=='scan')stopLiveCamera();
-  else if(scanMode==='live')startLiveCamera();
 }
 
 // ── SESSION ──
@@ -1770,7 +1776,7 @@ function setScanMode(mode){
   document.getElementById('live-cam-wrap').classList.toggle('open',mode==='live');
   document.getElementById('scan-zone').classList.toggle('visible',mode==='gallery');
   document.getElementById('quick-log-wrap').classList.toggle('visible',mode==='text');
-  if(mode==='live'){startLiveCamera();document.getElementById('analyze-btn').disabled=true;}
+  if(mode==='live'){document.getElementById('analyze-btn').disabled=true;}
   else if(mode==='gallery'){stopLiveCamera();document.getElementById('analyze-btn').disabled=!B64;}
   else{stopLiveCamera();document.getElementById('analyze-btn').disabled=false;}
 }
@@ -1817,6 +1823,7 @@ async function startLiveCamera(){
     setScanMode('gallery');
     return;
   }
+  document.getElementById('cam-idle').classList.add('hidden');
   document.getElementById('cam-retry').classList.add('hidden');
   setCamSignal('cam-signal','starting');
   try{
@@ -1834,6 +1841,7 @@ async function startLiveCamera(){
       document.getElementById('cam-retry').classList.remove('hidden');
       return;
     }
+    document.getElementById('cam-idle').classList.remove('hidden');
     showToast((CAM_ERR_MSGS[e.name]||'Sin acceso a cámara')+' — usa Galería');
     setScanMode('gallery');
   }
@@ -1853,6 +1861,7 @@ function stopLiveCamera(){
   if(liveStream){liveStream.getTracks().forEach(t=>{t.removeEventListener('ended',onLiveCameraTrackEnded);t.stop();});liveStream=null;}
   setCamSignal('cam-signal','starting');
   stopCamTips();
+  document.getElementById('cam-idle').classList.remove('hidden');
 }
 const CAM_TIPS=[
   'Centra el plato en el encuadre',
