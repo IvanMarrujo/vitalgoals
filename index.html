@@ -79,9 +79,9 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 #splash-ui{position:relative;z-index:2;text-align:center;pointer-events:none}
 #splash-logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:48px;color:#fff;letter-spacing:8px;opacity:0}
 #splash-tagline{font-family:'Noto Sans',sans-serif;font-size:14px;color:#8892a4;margin-top:8px;opacity:0}
-#splash-loading-msg.loading-breath{font-family:'Noto Sans',sans-serif;font-size:12px;color:#00c853;margin-top:32px;animation:breath 2s ease-in-out infinite}
+#splash-loading-msg.loading-breath{font-family:'Noto Sans',sans-serif;font-size:12px;color:#00c853;margin-top:48px;animation:breath 2s ease-in-out infinite}
 @keyframes breath{0%,100%{opacity:.3}50%{opacity:1}}
-.splash-cursor{display:inline-block;color:var(--brand-accent);animation:blink .7s step-end infinite}
+.splash-cursor{display:inline-block;color:rgba(0,200,83,0.6);animation:blink .7s step-end infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
 /* TICKER */
@@ -1314,19 +1314,19 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     let mi=0;
     const next=()=>{
       if(!msgLoopActive)return;
-      typeWriter(msgEl,MSGS[mi%MSGS.length],25,()=>{
+      typeWriter(msgEl,MSGS[mi%MSGS.length],38,()=>{
         mi++;
-        next();
+        setTimeout(next,400);
       });
     };
     next();
   }
 
   function runTextFadeAndMessages(){
-    setTimeout(()=>{typeWriter(logoTextEl,'VITAL HEALTH GOALS',55);},900);
-    setTimeout(()=>{typeWriter(taglineEl,'Tu nutrición. Tu ciencia. Tu vida.',35);},1400);
+    setTimeout(()=>{typeWriter(logoTextEl,'VITAL HEALTH GOALS',75);},900);
+    setTimeout(()=>{typeWriter(taglineEl,'Tu nutrición. Tu ciencia. Tu vida.',50);},1400);
     setTimeout(runMessageTypewriterLoop,1800);
-    setTimeout(()=>{msgLoopActive=false;},4800);
+    setTimeout(()=>{msgLoopActive=false;},5800);
   }
 
   let timelineStarted=false;
@@ -1336,8 +1336,8 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     if(timelineStarted)return;
     timelineStarted=true;
     runTextFadeAndMessages();
-    setTimeout(()=>{splashEl.style.opacity=0;},4800);
-    setTimeout(hideSplash,5300);
+    setTimeout(()=>{splashEl.style.opacity=0;},5800);
+    setTimeout(hideSplash,6300);
   }
 
   // Fallback if Three.js/CDN or the texture fails: text-only CSS fade, no 3D.
@@ -1399,7 +1399,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     }
 
     // particles/lights render immediately; texture loads async — the render loop and
-    // the 0-5300ms timeline below don't wait on it, so particles orbit from t=0 either
+    // the 0-6300ms timeline below don't wait on it, so particles orbit from t=0 either
     // way. If the texture fails to load, drop straight to the CSS-only fallback (no 3D).
     new THREE.TextureLoader().load('/assets/vhg-logo.png',buildTexturePlanes,undefined,()=>{
       cleanup();
@@ -1410,7 +1410,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     const startTime=performance.now();
     animate();
     startTimeline();
-    setTimeout(cleanup,5300);
+    setTimeout(cleanup,6300);
 
     function animate(){
       rafId=requestAnimationFrame(animate);
