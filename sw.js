@@ -7,6 +7,7 @@ const SHELL_ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  console.log('[VHG SW] registrado v2');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS))
   );

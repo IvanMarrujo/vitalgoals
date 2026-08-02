@@ -2802,17 +2802,15 @@ function isStandalone(){
 function maybeShowInstallBanner(){
   const banner=document.getElementById('install-banner');
   if(!banner)return;
-  if(localStorage.getItem('vitalgoals_install_dismissed'))return;
+  if(sessionStorage.getItem('vhg_install_dismissed'))return;
   if(isStandalone())return;
-  const scans=parseInt(localStorage.getItem('vitalgoals_scan_count')||'0');
-  if(scans<2)return;
   if(!isIOS&&!deferredInstallPrompt)return;
-  if(isIOS)document.getElementById('install-sub').textContent='Toca Compartir → Agregar a pantalla de inicio';
+  if(isIOS)document.getElementById('install-sub').textContent="Toca compartir → 'Añadir a inicio'";
   banner.classList.remove('hidden');
 }
 function handleInstallClick(){
   if(isIOS){
-    showToast('Toca el ícono Compartir y elige "Agregar a inicio"');
+    showToast("Toca compartir → 'Añadir a inicio'");
     return;
   }
   if(!deferredInstallPrompt)return;
@@ -2823,14 +2821,14 @@ function handleInstallClick(){
   });
 }
 function dismissInstallBanner(){
-  localStorage.setItem('vitalgoals_install_dismissed','1');
+  sessionStorage.setItem('vhg_install_dismissed','1');
   document.getElementById('install-banner').classList.add('hidden');
 }
 
 // ── SERVICE WORKER ──
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js')
-    .then(r=>console.log('[SW] registrado'))
+    .then(r=>console.log('[VHG SW] registrado v2'))
     .catch(e=>console.error('[SW] error:',e));
   navigator.serviceWorker.addEventListener('message',(event)=>{
     if(event.data&&event.data.type==='notification-action'&&event.data.action==='scan')handleScanAction();
