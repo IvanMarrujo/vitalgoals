@@ -431,14 +431,16 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 
 /* CONNECT DEVICE */
 .device-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
-.device-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px 10px;text-align:center;cursor:pointer;transition:all .2s}
-.device-card:hover{border-color:var(--border-a)}
+.device-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px 10px;text-align:center;transition:all .2s}
 .device-card.connected{border-color:var(--neon);background:var(--neon-dim)}
 .device-icon svg{width:24px;height:24px;stroke:var(--text-dim);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
 .device-card.connected .device-icon svg{stroke:var(--neon)}
 .device-name{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
-.device-status{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:700}
+.device-status{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:700;margin-bottom:10px}
 .device-card.connected .device-status{color:var(--neon)}
+.device-connect-btn{width:100%;padding:7px 4px;background:transparent;border:1px solid var(--border-a);border-radius:7px;color:var(--neon);font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:1px;cursor:pointer;transition:all .18s}
+.device-connect-btn:hover{background:var(--neon-dim)}
+.device-card.connected .device-connect-btn{border-color:rgba(255,45,45,.3);color:var(--red)}
 
 /* PATTERN INSIGHTS */
 .pattern-card{display:flex;align-items:flex-start;gap:12px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
@@ -1150,6 +1152,9 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
       </div>
     </div>
 
+    <div class="sec-sub" style="margin:0 0 12px">⌚ DEVICES</div>
+    <div class="device-grid" id="device-grid"></div>
+
     <div id="profile-normal">
       <div class="profile-hero">
         <div class="profile-avatar">
@@ -1184,9 +1189,6 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
         <div class="stat-card"><div class="stat-val" style="color:var(--neon)" id="s-prot">0g</div><div class="stat-lbl">PROTEÍNA PROM.</div></div>
         <div class="stat-card"><div class="stat-val" style="color:var(--yellow)" id="s-score">0%</div><div class="stat-lbl">MATCH SCORE PROM.</div></div>
       </div>
-      <div class="sec-sub" style="margin:20px 0 12px">CONECTAR DISPOSITIVO</div>
-      <div class="device-grid" id="device-grid"></div>
-
       <div class="sec-sub" style="margin:20px 0 12px">PATRONES</div>
       <button class="btn-primary" style="margin-bottom:14px" onclick="analyzePatterns()">ANALIZAR MIS PATRONES</button>
       <div id="patterns-list"></div>
@@ -2315,6 +2317,7 @@ function tryAutologin(){
 }
 function renderProfile(){
   renderIdCard();
+  renderDevices();
   document.getElementById('profile-normal').classList.toggle('hidden',!!CU.isGuest);
   document.getElementById('profile-guest-banner').classList.toggle('hidden',!CU.isGuest);
   if(CU.isGuest)return;
@@ -2334,16 +2337,16 @@ function renderProfile(){
   document.getElementById('s-prot').textContent=ap+'g';
   const sc=all.filter(e=>e.match_score).map(e=>e.match_score);
   document.getElementById('s-score').textContent=(sc.length>0?Math.round(sc.reduce((s,v)=>s+v,0)/sc.length):0)+'%';
-  renderDevices();
 }
 
-// ── CONNECT DEVICE (visual shell, no real OAuth yet) ──
+// ── CONNECT DEVICE: Oura has a real auth endpoint, the rest are a visual
+// shell (mock toggle + toast) until their integrations are built ──
 const DEVICES=[
-  {id:'whoop',name:'Whoop'},
-  {id:'oura',name:'Oura Ring'},
-  {id:'garmin',name:'Garmin'},
-  {id:'applewatch',name:'Apple Watch'},
-  {id:'fitbit',name:'Fitbit'},
+  {id:'whoop',name:'Whoop',real:false},
+  {id:'oura',name:'Oura Ring',real:true},
+  {id:'garmin',name:'Garmin',real:false},
+  {id:'applewatch',name:'Apple Watch',real:false},
+  {id:'fitbit',name:'Fitbit',real:false},
 ];
 const getDeviceConns=()=>{const d=localStorage.getItem(uk('device_conns'));return d?JSON.parse(d):{};};
 const saveDeviceConns=c=>localStorage.setItem(uk('device_conns'),JSON.stringify(c));
@@ -2351,19 +2354,24 @@ function renderDevices(){
   const conns=getDeviceConns();
   document.getElementById('device-grid').innerHTML=DEVICES.map(d=>{
     const on=!!conns[d.id];
-    return`<div class="device-card ${on?'connected':''}" onclick="toggleDevice('${d.id}')">
+    const action=d.real&&!on?`window.location.href='/api/oura?action=auth'`:`toggleDevice('${d.id}')`;
+    return`<div class="device-card ${on?'connected':''}">
       <div class="device-icon"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>
       <div class="device-name">${d.name}</div>
-      <div class="device-status">${on?'CONECTADO':'PRÓXIMAMENTE'}</div>
+      <div class="device-status">${on?'CONECTADO':'DESCONECTADO'}</div>
+      <button class="device-connect-btn" onclick="${action}">${on?'DESCONECTAR':'CONECTAR'}</button>
     </div>`;
   }).join('');
 }
 function toggleDevice(id){
+  const d=DEVICES.find(x=>x.id===id);
   const conns=getDeviceConns();
+  if(!conns[id]&&d.real){window.location.href='/api/oura?action=auth';return;}
+  if(!conns[id]&&!d.real){showToast('Próximamente');return;}
   conns[id]=!conns[id];
   saveDeviceConns(conns);
   renderDevices();
-  showToast(conns[id]?'Conexión simulada — integración real próximamente':'Desconectado');
+  showToast('Desconectado');
 }
 
 // ── PATTERN ANALYSIS (nutritional memory) ──
