@@ -96,16 +96,13 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
   radial-gradient(ellipse 50% 40% at 100% 100%,rgba(255,77,0,.05) 0%,transparent 60%),
   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cpath d='M0 0h80v80H0z' fill='none'/%3E%3Ccircle cx='40' cy='40' r='.8' fill='rgba(52,199,89,.08)'/%3E%3Ccircle cx='0' cy='0' r='.8' fill='rgba(52,199,89,.05)'/%3E%3Ccircle cx='80' cy='80' r='.8' fill='rgba(52,199,89,.05)'/%3E%3C/svg%3E"),#070707}
 .login-logo{text-align:center;margin-bottom:44px}
-.login-mark{width:64px;height:64px;margin:0 auto 18px;border-radius:50%;background:var(--brand-glass);
-  border:1px solid var(--border-a);display:flex;align-items:center;justify-content:center;
-  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;color:var(--neon);
-  box-shadow:var(--glow);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur)}
+.login-logo-img{width:80px;height:80px;margin:0 auto 18px;display:block;object-fit:contain;filter:drop-shadow(0 0 20px rgba(0,200,83,.35))}
 .login-brand{font-family:'Barlow Condensed',sans-serif;font-size:clamp(20px,5.5vw,28px);font-weight:800;letter-spacing:4px;color:var(--text);line-height:1.2;display:block}
 .login-tagline{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:6px;color:var(--text-dim);text-transform:uppercase;margin-top:8px;display:block}
 .login-card{background:var(--card);border:1px solid var(--border-a);border-radius:20px;padding:32px 28px;width:100%;max-width:380px}
-.login-tabs{display:flex;gap:4px;margin-bottom:28px;background:var(--bg2);border-radius:10px;padding:4px}
-.login-tab{flex:1;padding:10px;background:transparent;border:none;border-radius:8px;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
-.login-tab.active{background:var(--neon);color:#000}
+.login-tabs{display:flex;gap:8px;margin-bottom:28px}
+.login-tab{flex:1;padding:11px 8px;background:transparent;border:1.5px solid var(--border-a);border-radius:50px;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:all .2s;line-height:1.25;white-space:normal}
+.login-tab.active{background:var(--neon);border-color:var(--neon);color:#000;box-shadow:var(--glow)}
 .form-group{margin-bottom:16px}
 .form-group label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;font-weight:600}
 .form-group input,.form-group select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;color:var(--text);font-size:16px;font-family:'Noto Sans',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none}
@@ -115,12 +112,16 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 .btn-primary{width:100%;padding:16px;background:var(--neon);border:none;border-radius:10px;color:#000;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:var(--glow)}
 .btn-primary:active{transform:scale(.98)}
 
-/* LOGIN ALT ACTIONS: guest + voice onboarding */
-.login-alt-actions{margin-top:18px;display:flex;flex-direction:column;gap:10px}
-.btn-guest{width:100%;padding:13px;background:transparent;border:1px dashed var(--border-a);border-radius:10px;color:var(--text-mid);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
-.btn-guest:hover{border-color:var(--neon);color:var(--neon);border-style:solid}
-.btn-voice-onboard{width:100%;padding:13px;background:var(--neon-dim);border:1px solid var(--neon);border-radius:10px;color:var(--neon);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+/* GUEST TAB PANEL */
+.guest-note{margin-top:12px;text-align:center;font-size:12px;color:var(--text-dim);font-family:'Noto Sans',sans-serif}
+
+/* SEPARATOR */
+.login-sep{text-align:center;margin:22px 0;color:var(--border-a);font-size:11px;letter-spacing:6px;font-family:'Barlow Condensed',sans-serif}
+
+/* VOICE ONBOARDING CTA (always visible on login) */
+.btn-voice-onboard{width:100%;padding:14px 13px;background:var(--neon-dim);border:1px solid var(--neon);border-radius:10px;color:var(--neon);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px}
 .btn-voice-onboard:hover{background:var(--neon);color:#000}
+.btn-voice-onboard small{display:block;font-family:'Noto Sans',sans-serif;font-size:11px;font-weight:400;letter-spacing:.2px;text-transform:none;opacity:.75}
 
 /* GUEST CONVERSION BANNER (Profile) */
 .guest-convert-card{background:var(--card);border:1px solid var(--border-a);border-radius:16px;padding:30px 22px;text-align:center}
@@ -397,6 +398,13 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 .install-close{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--text-dim);cursor:pointer;font-size:12px}
 .install-close:hover{color:var(--neon)}
 
+/* GOAL CARD (fixed, from voice onboarding) */
+.goal-card{display:flex;align-items:center;gap:10px;background:var(--neon-dim);border:1px solid var(--neon);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.goal-card.hidden{display:none}
+.goal-icon{font-size:18px;flex-shrink:0}
+.goal-text{font-size:13px;color:var(--text);line-height:1.5}
+.goal-text strong{color:var(--neon);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px}
+
 /* METABOLIC ADAPTATION BANNER */
 .meta-adapt-card{background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(52,199,89,.06));border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:16px;margin-bottom:16px;display:none}
 .meta-adapt-card.visible{display:block}
@@ -624,24 +632,26 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-logo">
-    <div class="login-mark">V</div>
-    <span class="login-brand">VITAL HEALTH GOALS</span>
-    <span class="login-tagline">Nutrition Intelligence</span>
+    <img src="/assets/vhg-logo.png" alt="Vital Health Goals" class="login-logo-img" width="80" height="80">
+    <span class="login-brand">VITAL GOALS</span>
+    <span class="login-tagline">Tu nutrición. Tu ciencia. Tu vida.</span>
   </div>
   <div class="login-card">
-    <div class="login-tabs">
-      <button class="login-tab active" onclick="switchTab('login')">ENTRAR</button>
-      <button class="login-tab" onclick="switchTab('register')">NUEVO</button>
+    <div class="login-tabs three">
+      <button class="login-tab" data-tab="register" onclick="switchTab('register')">NUEVO</button>
+      <button class="login-tab active" data-tab="login" onclick="switchTab('login')">ENTRAR</button>
+      <button class="login-tab" data-tab="guest" onclick="switchTab('guest')">EXPLORAR SIN CUENTA</button>
     </div>
     <div id="login-form">
-      <div class="form-group"><label>ATLETA</label><input type="text" id="ln" placeholder="Tu nombre" autocomplete="off"></div>
+      <div class="form-group"><label>AFILIADO</label><input type="text" id="ln" placeholder="Tu nombre" autocomplete="off"></div>
       <div class="form-group"><label>PIN</label><input type="number" id="lp" placeholder="0000" maxlength="4" oninput="if(this.value.length>4)this.value=this.value.slice(0,4)"></div>
-      <button class="btn-primary" onclick="doLogin()">ENTRAR AL SISTEMA</button>
+      <button class="btn-primary" onclick="doLogin()">ENTRAR</button>
       <div id="lerr" style="color:var(--red);font-size:12px;text-align:center;margin-top:12px;display:none"></div>
     </div>
     <div id="register-form" class="hidden">
       <div class="form-group"><label>NOMBRE</label><input type="text" id="rn" placeholder="Tu nombre" autocomplete="off"></div>
       <div class="form-group"><label>PIN</label><input type="number" id="rp" placeholder="0000" maxlength="4" oninput="if(this.value.length>4)this.value=this.value.slice(0,4)"></div>
+      <div class="form-group"><label>Nº AFILIADO (OPCIONAL)</label><input type="text" id="rnum" placeholder="Si ya eres afiliado VHG" autocomplete="off"></div>
       <div class="form-group"><label>MODO INICIAL</label>
         <select id="rm"><option value="MANTENIMIENTO">MANTENIMIENTO</option><option value="BULK">BULK — VOLUMEN</option><option value="CORTE">CORTE — DEFINICIÓN</option></select>
       </div>
@@ -649,10 +659,15 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
       <button class="btn-primary" onclick="doRegister()">CREAR PERFIL</button>
       <div id="rerr" style="color:var(--red);font-size:12px;text-align:center;margin-top:12px;display:none"></div>
     </div>
-    <div class="login-alt-actions">
-      <button class="btn-guest" onclick="enterGuestMode()">EXPLORAR SIN CUENTA →</button>
-      <button class="btn-voice-onboard" onclick="openVoiceModal()">🎙️ CUÉNTAME QUÉ BUSCAS</button>
+    <div id="guest-form" class="hidden">
+      <button class="btn-primary" onclick="enterGuestMode()">EXPLORAR AHORA →</button>
+      <div class="guest-note">Sin registro. Sin compromiso.</div>
     </div>
+    <div class="login-sep"><span>───</span></div>
+    <button class="btn-voice-onboard" onclick="openVoiceModal()">
+      🎙️ CUÉNTAME MI OBJETIVO
+      <small>Habla y creo tu perfil en segundos</small>
+    </button>
   </div>
 </div>
 
@@ -786,7 +801,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
   <div class="topbar">
     <div class="topbar-brand">VH<em>G</em></div>
     <div class="topbar-user">
-      <div class="topbar-name" id="hud-name">ATLETA</div>
+      <div class="topbar-name" id="hud-name">AFILIADO</div>
       <div id="hud-mode" class="mode-pill MANTENIMIENTO">MANT.</div>
     </div>
     <div class="topbar-right">
@@ -962,6 +977,12 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
   <div class="page" id="page-log">
     <div class="sec-head"><div class="sec-title">LOG DIARIO</div><div class="sec-line"></div></div>
 
+    <!-- Fixed goal card (set via voice onboarding) -->
+    <div class="goal-card hidden" id="goal-card">
+      <span class="goal-icon">🎯</span>
+      <span class="goal-text"><strong>MI OBJETIVO:</strong> <span id="goal-text-val"></span></span>
+    </div>
+
     <!-- Install PWA Banner -->
     <div class="install-banner hidden" id="install-banner">
       <div class="install-icon">📲</div>
@@ -1099,7 +1120,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
         <div class="profile-avatar">
           <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
-        <div class="profile-name" id="profile-name">ATLETA</div>
+        <div class="profile-name" id="profile-name">AFILIADO</div>
         <div id="profile-streak"></div>
       </div>
       <div class="cloud-sync-note">☁️ Tu historial está guardado en la nube — accede desde cualquier dispositivo</div>
@@ -1503,9 +1524,10 @@ const getHistory=()=>{
 
 // ── AUTH ──
 function switchTab(t){
-  document.querySelectorAll('.login-tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='login')||(i===1&&t==='register')));
+  document.querySelectorAll('.login-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   document.getElementById('login-form').classList.toggle('hidden',t!=='login');
   document.getElementById('register-form').classList.toggle('hidden',t!=='register');
+  document.getElementById('guest-form').classList.toggle('hidden',t!=='guest');
 }
 function doLogin(){
   const n=document.getElementById('ln').value.trim(),p=document.getElementById('lp').value.trim(),e=document.getElementById('lerr');
@@ -1515,9 +1537,9 @@ function doLogin(){
   e.style.display='none';CU=u;initApp();
 }
 function doRegister(){
-  const n=document.getElementById('rn').value.trim(),p=document.getElementById('rp').value.trim(),m=document.getElementById('rm').value,w=parseFloat(document.getElementById('rw').value)||75,e=document.getElementById('rerr');
+  const n=document.getElementById('rn').value.trim(),p=document.getElementById('rp').value.trim(),m=document.getElementById('rm').value,w=parseFloat(document.getElementById('rw').value)||75,aff=document.getElementById('rnum').value.trim(),e=document.getElementById('rerr');
   if(!n||p.length!==4){e.textContent='Completa todos los campos';e.style.display='block';return;}
-  const u={name:n,pin:p,mode:m,weight:w,targetCals:CAL_TARGETS[m],streak:0,createdAt:Date.now()};
+  const u={name:n,pin:p,mode:m,weight:w,targetCals:CAL_TARGETS[m],streak:0,createdAt:Date.now(),affiliateNumber:aff};
   saveU(u);CU=u;e.style.display='none';initApp();
 }
 function enterGuestMode(){
@@ -1605,7 +1627,7 @@ async function processVoiceTranscript(transcript){
     document.getElementById('voice-step-loading').classList.add('hidden');
     if(d.error){showToast('Error: '+d.error);document.getElementById('voice-step-mic').classList.remove('hidden');return;}
     voiceProfileDraft=d;
-    document.getElementById('vp-name').value=d.name||'Atleta';
+    document.getElementById('vp-name').value=d.name||'Afiliado';
     document.getElementById('vp-mode').value=['BULK','CORTE','MANTENIMIENTO'].includes(d.mode)?d.mode:'MANTENIMIENTO';
     document.getElementById('vp-weight').value=d.weight||70;
     document.getElementById('vp-goal').textContent=d.goal_summary||'';
@@ -2077,6 +2099,8 @@ function applyMetaAdapt(){
 
 // ── LOG PAGE ──
 function renderLog(){
+  document.getElementById('goal-card').classList.toggle('hidden',!CU.goalSummary);
+  if(CU.goalSummary)document.getElementById('goal-text-val').textContent=CU.goalSummary;
   const entries=getTodayLog();
   const now=new Date();
   const days=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
