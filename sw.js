@@ -1,5 +1,10 @@
-const CACHE_NAME = 'gainz-v1';
-const SHELL_ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+const SW_VERSION = 'v2';
+const CACHE_NAME = `vhg-${SW_VERSION}`;
+const SHELL_ASSETS = [
+  `/manifest.json?v=${SW_VERSION}`,
+  `/icon-192.png?v=${SW_VERSION}`,
+  `/icon-512.png?v=${SW_VERSION}`,
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -28,7 +33,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for the app shell / static assets
+  // Network-first for the HTML shell itself so new deploys/copy changes show
+  // up immediately instead of being pinned by a stale cache-first response.
+  if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Cache-first for the remaining static assets (icons, manifest, etc.)
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
