@@ -85,14 +85,9 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
 /* TICKER */
-.ticker-wrap{background:#000;border-bottom:1px solid var(--border-a);overflow:hidden;height:30px;display:none;align-items:center}
-.ticker-label{flex-shrink:0;background:var(--neon);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;padding:0 12px;height:100%;display:flex;align-items:center;text-transform:uppercase;white-space:nowrap}
-.ticker-track{overflow:hidden;flex:1}
-.ticker-inner{display:flex;gap:60px;animation:tick 40s linear infinite;white-space:nowrap}
-.ticker-inner:hover{animation-play-state:paused}
-.ticker-item{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;color:var(--text-mid);flex-shrink:0}
-.ticker-item::after{content:' ◆ ';color:var(--neon);opacity:.5}
-@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.motivation-bar{background:#000;border-bottom:1px solid var(--border-a);overflow:hidden;height:30px;display:none;align-items:center;justify-content:center;padding:0 16px}
+.motivation-text{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;color:var(--text-mid);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;opacity:1;transition:opacity .5s ease}
+.motivation-text.fade{opacity:0}
 
 /* LOGIN */
 .bottom-nav{display:none!important}
@@ -617,10 +612,9 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
   </div>
 </div>
 
-<!-- TICKER -->
-<div class="ticker-wrap" id="ticker-bar">
-  <div class="ticker-label">VITAL HEALTH GOALS INTEL</div>
-  <div class="ticker-track"><div class="ticker-inner" id="ticker-inner"><span class="ticker-item">Cargando intel...</span></div></div>
+<!-- MOTIVATIONAL BAR -->
+<div class="motivation-bar" id="ticker-bar">
+  <div class="motivation-text" id="motivation-text"></div>
 </div>
 
 <!-- LOGIN -->
@@ -1631,6 +1625,7 @@ function confirmVoiceProfile(){
 }
 function doLogout(){
   stopLiveCamera();
+  stopMotivationRotator();
   CU=null;CS=null;B64=null;LR=null;
   document.getElementById('app').style.display='none';
   document.getElementById('bottom-nav').style.display='none';
@@ -1647,7 +1642,7 @@ function initApp(){
   document.getElementById('ticker-bar').style.display='flex';
   updateTopbar();showPage('scan',document.querySelector('.nav-btn'));
   renderLog();renderSupps();renderWater();renderProfile();
-  loadTicker();
+  startMotivationRotator();
   // Check readiness
   const r=getReadiness();
   if(!r){setTimeout(()=>openReadiness(),800);}
@@ -1738,19 +1733,34 @@ function showReadinessBadge(score){
   mini.className='readiness-score-mini '+(score>=70?'green':score>=40?'yellow':'red');
 }
 
-// ── TICKER ──
-async function loadTicker(){
-  try{
-    const r=await fetch('/api/ticker',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:CS,mode:CU?.mode})});
-    const d=await r.json();
-    if(d.headlines&&d.headlines.length>0)renderTicker(d.headlines);
-  }catch(e){}
+// ── MOTIVATIONAL BAR ──
+const MOTIVATIONAL=[
+  'Tu salud es tu mayor inversión.',
+  'Cada decisión cuenta. Hoy es el día.',
+  'Nutre tu cuerpo. Transforma tu vida.',
+  'La consistencia es el secreto del éxito.',
+  'Pequeños hábitos. Grandes resultados.',
+  'Tu bienestar empieza con lo que eliges hoy.',
+  'Ciencia + naturaleza = tu mejor versión.',
+  'No pares. Tu cuerpo te lo agradecerá.',
+];
+let motivationIdx=0,motivationTimer=null;
+function startMotivationRotator(){
+  const el=document.getElementById('motivation-text');
+  if(!el)return;
+  if(motivationTimer)clearInterval(motivationTimer);
+  el.textContent=MOTIVATIONAL[motivationIdx];
+  motivationTimer=setInterval(()=>{
+    el.classList.add('fade');
+    setTimeout(()=>{
+      motivationIdx=(motivationIdx+1)%MOTIVATIONAL.length;
+      el.textContent=MOTIVATIONAL[motivationIdx];
+      el.classList.remove('fade');
+    },500);
+  },6000);
 }
-function renderTicker(h){
-  const inner=document.getElementById('ticker-inner');
-  const doubled=[...h,...h];
-  inner.innerHTML=doubled.map(x=>`<span class="ticker-item">${x}</span>`).join('');
-  inner.style.animationDuration=(doubled.length*3)+'s';
+function stopMotivationRotator(){
+  if(motivationTimer){clearInterval(motivationTimer);motivationTimer=null;}
 }
 
 // ── SCAN MODES ──
