@@ -381,6 +381,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 .macro-ring.p{--ring-color:var(--neon)}
 .macro-ring.c{--ring-color:var(--orange)}
 .macro-ring.g{--ring-color:var(--purple)}
+.macro-ring.cal{--ring-color:var(--yellow)}
 .macro-ring-val{position:relative;z-index:1;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;color:var(--text)}
 .macro-ring-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);font-weight:700}
 .macro-ring-sub{font-size:11px;color:var(--text-mid)}
@@ -571,6 +572,36 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 .share-btn.tiktok{background:#010101;color:#fff;border:1px solid #333}
 .share-btn.fb{background:#1877f2;color:#fff}
 .share-btn.close-share{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:10px}
+
+/* DAILY REPORT: X-RAY DEL DÍA */
+.report-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:600;display:none;padding:20px;overflow-y:auto}
+.report-modal.open{display:block}
+.report-inner{width:100%;max-width:480px;margin:0 auto;background:var(--card);border:1px solid var(--border-a);border-radius:16px;padding:20px 20px 28px}
+.report-topbar{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.report-nav-btn{width:34px;height:34px;border-radius:8px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:18px;cursor:pointer;flex-shrink:0}
+.report-nav-btn:disabled{opacity:.3;cursor:default}
+.report-date-lbl{flex:1;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;color:var(--text-mid);text-transform:uppercase}
+.report-close-btn{width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;flex-shrink:0;font-size:14px}
+.report-badge-progress{display:inline-block;background:var(--orange-dim);border:1px solid rgba(255,77,0,.3);color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:2px;padding:5px 12px;border-radius:20px;margin-bottom:16px}
+.report-score-wrap{text-align:center;margin-bottom:16px}
+.report-score{font-family:'Barlow Condensed',sans-serif;font-size:64px;font-weight:900;line-height:1}
+.report-score-lbl{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;color:var(--text-dim);margin-top:4px}
+.report-summary{font-size:14px;color:var(--text-mid);text-align:center;line-height:1.5;margin-bottom:8px}
+.report-meals{background:var(--card2);border-radius:12px;padding:4px 16px}
+.report-meal-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+.report-meal-row:first-child{border-top:none}
+.report-meal-time{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--text-dim);width:44px;flex-shrink:0}
+.report-meal-name{flex:1;font-size:13px;color:var(--text)}
+.report-meal-cal{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--orange);flex-shrink:0}
+.report-hl-item,.report-mej-item{font-size:13px;color:var(--text-mid);padding:6px 0;line-height:1.4}
+.report-empty-mini{font-size:12px;color:var(--text-dim)}
+.report-advice-card{background:var(--neon-dim);border:1px solid var(--border-a);border-radius:12px;padding:14px 16px;margin:16px 0}
+.report-advice-lbl{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--neon);font-weight:700;margin-bottom:6px}
+.report-advice-txt{font-size:13px;color:var(--text);line-height:1.5}
+.report-closing{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-size:18px;text-align:center;color:var(--text);padding:20px 10px;line-height:1.4}
+.report-export-row{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.report-locked,.report-loading,.report-empty-state{text-align:center;padding:60px 20px;color:var(--text-dim);font-size:14px}
+.report-locked-icon{font-size:40px;margin-bottom:12px}
 
 /* PROGRESS CAM MODAL (front camera capture) */
 .pcam-modal{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
@@ -1066,6 +1097,9 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     <button class="share-day-btn" onclick="openProgressCam()">
       💪 MI PROGRESO
     </button>
+    <button class="share-day-btn" onclick="openDailyReport(getDefaultReportDate())">
+      📊 VER MI REPORTE
+    </button>
 
     <div class="water-card" id="water-card">
       <div class="water-header">
@@ -1290,6 +1324,20 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
   </div>
 </div>
 
+<!-- DAILY REPORT: X-RAY DEL DÍA -->
+<div class="report-modal" id="daily-report-modal">
+  <div class="report-inner">
+    <div class="report-topbar">
+      <button class="report-nav-btn" onclick="navReportDate(-1)">‹</button>
+      <div class="report-date-lbl" id="report-date-lbl">—</div>
+      <button class="report-nav-btn" id="report-next-btn" onclick="navReportDate(1)">›</button>
+      <button class="report-close-btn" onclick="closeDailyReport()">✕</button>
+    </div>
+    <div id="report-body"></div>
+  </div>
+</div>
+<canvas id="daily-report-canvas" width="1080" height="1920" style="display:none"></canvas>
+
 <!-- LOADING -->
 <div class="loading-overlay" id="loading">
   <div class="load-ring"></div>
@@ -1315,6 +1363,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleFile(event)">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" onerror="window.__threeLoadFailed=true"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" onerror="window.__jspdfLoadFailed=true"></script>
 <script>
 // ── FRAME GLOW: stops pulsing on first interaction ──
 (function(){
@@ -2271,6 +2320,257 @@ function renderWater(){
 }
 function addWater(ml){saveWaterMl(getWaterMl()+ml);renderWater();}
 function resetWater(){saveWaterMl(0);renderWater();}
+
+// ── DAILY REPORT: X-RAY DEL DÍA ──
+let currentReportDate=null,currentReportData=null;
+function isReportUnlocked(date){
+  if(date===TODAY)return false;
+  const unlockAt=new Date(date+'T00:00:00');
+  unlockAt.setDate(unlockAt.getDate()+1);
+  unlockAt.setHours(6,0,0,0);
+  return Date.now()>=unlockAt.getTime();
+}
+function getDefaultReportDate(){
+  const y=new Date();y.setDate(y.getDate()-1);
+  const ys=y.toISOString().split('T')[0];
+  return isReportUnlocked(ys)?ys:TODAY;
+}
+function formatReportDateLbl(date){
+  const d=new Date(date+'T12:00:00');
+  const days=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+  const months=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+}
+function getDayData(date){
+  const entries=date===TODAY?getTodayLog():JSON.parse(localStorage.getItem(uk(`log_${date}`))||'[]');
+  const water=parseInt(localStorage.getItem(uk(`water_${date}`))||'0');
+  const tgt=macroTargets();
+  const calTgt=CU.targetCals||CAL_TARGETS[CU.mode]||2200;
+  const tc=entries.reduce((s,e)=>s+(e.calorias||0),0);
+  const tp=entries.reduce((s,e)=>s+(e.proteina||0),0);
+  const tca=entries.reduce((s,e)=>s+(e.carbohidratos||0),0);
+  const tf=entries.reduce((s,e)=>s+(e.grasas||0),0);
+  const waterTgt=getWaterTarget();
+  const comidas=entries.map(e=>({
+    hora:e.timestamp?new Date(e.timestamp).toTimeString().slice(0,5):'',
+    nombre:e.nombre||'Alimento',calorias:e.calorias||0,proteina:e.proteina||0,
+  }));
+  return{
+    date,mode:CU.mode,
+    macros:{
+      calorias:{consumido:tc,objetivo:calTgt,pct:calTgt?Math.min(100,Math.round(tc/calTgt*100)):0},
+      proteina:{consumido:tp,objetivo:tgt.p,pct:tgt.p?Math.min(100,Math.round(tp/tgt.p*100)):0},
+      carbos:{consumido:tca,objetivo:tgt.c,pct:tgt.c?Math.min(100,Math.round(tca/tgt.c*100)):0},
+      grasas:{consumido:tf,objetivo:tgt.g,pct:tgt.g?Math.min(100,Math.round(tf/tgt.g*100)):0},
+    },
+    hidratacion:{consumido_ml:water,objetivo_ml:waterTgt,pct:Math.min(100,Math.round(water/waterTgt*100))},
+    comidas,
+  };
+}
+const getCachedReport=date=>{const r=localStorage.getItem(uk(`report_${date}`));return r?JSON.parse(r):null;};
+const saveCachedReport=(date,report)=>localStorage.setItem(uk(`report_${date}`),JSON.stringify(report));
+async function fetchDailyReport(dayData){
+  try{
+    const res=await fetch('/api/brief',{method:'POST',headers:{'Content-Type':'application/json','X-Gainz-Key':VITALGOALS_APP_KEY},body:JSON.stringify({query:'Genera mi reporte diario',type:'daily_report',dayData})});
+    const d=await res.json();
+    return d.error?null:d;
+  }catch(e){return null;}
+}
+function openDailyReport(date){
+  currentReportDate=date;
+  document.getElementById('daily-report-modal').classList.add('open');
+  loadAndRenderReport(date);
+}
+function closeDailyReport(){document.getElementById('daily-report-modal').classList.remove('open');}
+function navReportDate(delta){
+  const d=new Date(currentReportDate+'T12:00:00');
+  d.setDate(d.getDate()+delta);
+  const ds=d.toISOString().split('T')[0];
+  if(ds>TODAY)return;
+  currentReportDate=ds;
+  loadAndRenderReport(ds);
+}
+async function loadAndRenderReport(date){
+  const isToday=date===TODAY;
+  document.getElementById('report-next-btn').disabled=date>=TODAY;
+  document.getElementById('report-date-lbl').textContent=formatReportDateLbl(date);
+  const body=document.getElementById('report-body');
+  currentReportData=null;
+  if(!isToday&&!isReportUnlocked(date)){
+    body.innerHTML=`<div class="report-locked"><div class="report-locked-icon">🔒</div><div>Este reporte se desbloquea a las 6:00 AM</div></div>`;
+    return;
+  }
+  const dayData=getDayData(date);
+  if(dayData.comidas.length===0){
+    body.innerHTML=`<div class="report-empty-state">Sin datos registrados este día</div>`;
+    return;
+  }
+  body.innerHTML=`<div class="report-loading">Generando tu reporte...</div>`;
+  let report=isToday?null:getCachedReport(date);
+  if(!report){
+    report=await fetchDailyReport(dayData);
+    if(report&&!isToday)saveCachedReport(date,report);
+  }
+  if(currentReportDate!==date)return; // user navigated away while awaiting
+  if(!report){
+    body.innerHTML=`<div class="report-empty-state">No se pudo generar el reporte — intenta más tarde</div>`;
+    return;
+  }
+  currentReportData={date,report,isToday};
+  body.innerHTML=reportBodyHTML(date,report,isToday);
+}
+function reportBodyHTML(date,report,isToday){
+  const scoreColor=report.score_color==='green'?'var(--neon)':report.score_color==='yellow'?'var(--yellow)':'var(--red)';
+  const m=report.macros||{};
+  const rings=[['cal','KCAL',m.calorias],['p','PROT',m.proteina],['c','CARBOS',m.carbos],['g','GRASAS',m.grasas]].map(([cls,lbl,d])=>{
+    const pct=Math.min(100,(d&&d.pct)||0);
+    return`<div class="macro-ring-item"><div class="macro-ring ${cls}" style="--pct:${pct}"><div class="macro-ring-val">${pct}%</div></div><div class="macro-ring-lbl">${lbl}</div><div class="macro-ring-sub">${(d&&d.consumido)||0} / ${(d&&d.objetivo)||0}</div></div>`;
+  }).join('');
+  const h=report.hidratacion||{};
+  const hPct=Math.min(100,h.pct||0);
+  const comidasHTML=(report.comidas||[]).length?(report.comidas||[]).map(c=>`
+    <div class="report-meal-row"><div class="report-meal-time">${c.hora||''}</div><div class="report-meal-name">${c.nombre||''}</div><div class="report-meal-cal">${c.calorias||0} kcal</div></div>`).join('')
+    :`<div class="report-empty-mini" style="padding:12px 0">Sin comidas registradas</div>`;
+  const highlightsHTML=(report.highlights||[]).map(t=>`<div class="report-hl-item">✅ ${t}</div>`).join('')||`<div class="report-empty-mini">—</div>`;
+  const mejorasHTML=(report.areas_mejora||[]).map(t=>`<div class="report-mej-item">⚠️ ${t}</div>`).join('')||`<div class="report-empty-mini">—</div>`;
+  return`
+    ${isToday?'<div class="report-badge-progress">EN PROGRESO</div>':''}
+    <div class="report-score-wrap">
+      <div class="report-score" style="color:${scoreColor}">${report.score_dia??0}</div>
+      <div class="report-score-lbl">SCORE DEL DÍA</div>
+    </div>
+    <div class="report-summary">${report.resumen||''}</div>
+    <div class="sec-sub" style="margin:20px 0 12px">MACROS</div>
+    <div class="macro-rings-row">${rings}</div>
+    <div class="sec-sub" style="margin:20px 0 12px">HIDRATACIÓN</div>
+    <div class="water-card" style="margin-bottom:0">
+      <div class="water-bar-track ${hPct>=100?'goal-met':''}"><div class="water-bar-fill" style="width:${hPct}%"></div></div>
+      <div class="water-amount-txt ${hPct>=100?'goal-met':''}">${h.consumido_ml||0}ml / ${h.objetivo_ml||2500}ml</div>
+    </div>
+    <div class="sec-sub" style="margin:20px 0 12px">COMIDAS</div>
+    <div class="report-meals">${comidasHTML}</div>
+    <div class="sec-sub" style="margin:20px 0 12px">HIGHLIGHTS</div>
+    <div>${highlightsHTML}</div>
+    <div class="sec-sub" style="margin:20px 0 12px">ÁREAS DE MEJORA</div>
+    <div>${mejorasHTML}</div>
+    <div class="report-advice-card"><div class="report-advice-lbl">🎯 CONSEJO PARA MAÑANA</div><div class="report-advice-txt">${report.consejo_manana||''}</div></div>
+    <div class="report-closing">${report.frase_cierre||''}</div>
+    <div class="report-export-row">
+      <button class="btn-primary" onclick="downloadDailyReportPNG()">⬇️ DESCARGAR PNG</button>
+      <button class="btn-primary" style="background:transparent;border:1px solid var(--border-a);color:var(--neon)" onclick="downloadDailyReportPDF()">📄 DESCARGAR PDF</button>
+    </div>`;
+}
+let dailyReportLogoImg=null;
+function loadReportLogoImg(){
+  return new Promise(resolve=>{
+    if(dailyReportLogoImg){resolve(dailyReportLogoImg);return;}
+    const img=new Image();
+    img.onload=()=>{dailyReportLogoImg=img;resolve(img);};
+    img.onerror=()=>resolve(null);
+    img.src='/assets/vhg-logo.png';
+  });
+}
+async function drawDailyReportCanvas(date,report){
+  const canvas=document.getElementById('daily-report-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  const logo=await loadReportLogoImg();
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0a1628');bg.addColorStop(1,'#112240');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  const barG=ctx.createLinearGradient(0,0,W,0);
+  barG.addColorStop(0,'#00c853');barG.addColorStop(1,'#009624');
+  ctx.fillStyle=barG;ctx.fillRect(0,0,W,10);
+  ctx.textAlign='center';
+  let y=100;
+  if(logo){const lw=90,lh=90;ctx.drawImage(logo,(W-lw)/2,y,lw,lh);y+=lh+40;}
+  const[yyyy,mm,dd]=date.split('-');
+  ctx.fillStyle='#8892a4';ctx.font='600 32px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='4px';
+  ctx.fillText(`REPORTE ${dd}/${mm}/${yyyy}`,W/2,y);ctx.letterSpacing='0px';
+  y+=70;
+  ctx.fillStyle='#fff';ctx.font='800 50px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='2px';
+  ctx.fillText('MI X-RAY NUTRICIONAL',W/2,y);ctx.letterSpacing='0px';
+  y+=140;
+  const scoreColor=report.score_color==='green'?'#00c853':report.score_color==='yellow'?'#ffd000':'#ff2d2d';
+  ctx.fillStyle=scoreColor;ctx.font='900 220px "Barlow Condensed", Arial, sans-serif';
+  ctx.fillText(String(report.score_dia??0),W/2,y);
+  y+=60;
+  ctx.fillStyle='#8892a4';ctx.font='600 28px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='3px';
+  ctx.fillText('SCORE DEL DÍA',W/2,y);ctx.letterSpacing='0px';
+  y+=70;
+  ctx.fillStyle='#ccd6f6';ctx.font='400 30px "Noto Sans", Arial, sans-serif';
+  wrapCanvasText(ctx,report.resumen||'',W/2,y,W-160,40,3);
+  y+=110;
+  ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(80,y,W-160,1);
+  y+=70;
+  const m=report.macros||{};
+  const cols=[[m.calorias,'KCAL','#ffd000'],[m.proteina,'PROT','#00c853'],[m.carbos,'CARBOS','#3b9eff'],[m.grasas,'GRASAS','#8b5cf6']];
+  const colW=(W-160)/4;
+  cols.forEach(([d,lbl,color],i)=>{
+    const cx=80+colW*i+colW/2;
+    ctx.fillStyle=color;ctx.font='800 60px "Barlow Condensed", Arial, sans-serif';
+    ctx.fillText(String((d&&d.consumido)||0),cx,y);
+    ctx.fillStyle='#555b6e';ctx.font='500 22px "Barlow Condensed", Arial, sans-serif';
+    ctx.fillText(`/ ${(d&&d.objetivo)||0}`,cx,y+38);
+    ctx.fillStyle='#8892a4';ctx.font='600 20px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='2px';
+    ctx.fillText(lbl,cx,y+74);ctx.letterSpacing='0px';
+  });
+  y+=140;
+  const h=report.hidratacion||{};
+  ctx.fillStyle='rgba(0,180,216,.08)';ctx.beginPath();ctx.roundRect(80,y,W-160,90,16);ctx.fill();
+  ctx.fillStyle='#00b4d8';ctx.font='700 30px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='1px';
+  ctx.fillText(`💧 ${h.consumido_ml||0}ml / ${h.objetivo_ml||2500}ml (${h.pct||0}%)`,W/2,y+56);ctx.letterSpacing='0px';
+  y+=150;
+  ctx.textAlign='left';
+  ctx.fillStyle='#fff';ctx.font='700 32px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='2px';
+  ctx.fillText('COMIDAS DEL DÍA',80,y);ctx.letterSpacing='0px';
+  y+=50;
+  (report.comidas||[]).slice(0,6).forEach(c=>{
+    ctx.fillStyle='#8892a4';ctx.font='500 24px "Noto Sans", Arial, sans-serif';
+    ctx.fillText(c.hora||'',80,y);
+    ctx.fillStyle='#ccd6f6';ctx.font='600 26px "Noto Sans", Arial, sans-serif';
+    ctx.fillText((c.nombre||'').slice(0,28),180,y);
+    ctx.textAlign='right';ctx.fillStyle='#ffd000';ctx.font='700 26px "Barlow Condensed", Arial, sans-serif';
+    ctx.fillText(`${c.calorias||0} kcal`,W-80,y);ctx.textAlign='left';
+    y+=44;
+  });
+  y+=40;
+  ctx.fillStyle='rgba(0,200,83,.08)';ctx.beginPath();ctx.roundRect(80,y,W-160,150,16);ctx.fill();
+  ctx.fillStyle='#00c853';ctx.font='700 26px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='2px';
+  ctx.fillText('CONSEJO PARA MAÑANA',110,y+42);ctx.letterSpacing='0px';
+  ctx.fillStyle='#fff';ctx.font='400 26px "Noto Sans", Arial, sans-serif';
+  wrapCanvasText(ctx,report.consejo_manana||'',110,y+90,W-220,32,2);
+  y+=200;
+  ctx.textAlign='center';
+  ctx.fillStyle='#fff';ctx.font='italic 500 38px "Noto Sans", Arial, sans-serif';
+  wrapCanvasText(ctx,report.frase_cierre||'',W/2,y+40,W-200,48,3);
+  ctx.fillStyle='#555b6e';ctx.font='600 30px "Barlow Condensed", Arial, sans-serif';ctx.letterSpacing='2px';
+  ctx.fillText('vitalgoals.com.mx',W/2,H-50);ctx.letterSpacing='0px';
+  ctx.fillStyle=barG;ctx.fillRect(0,H-10,W,10);
+}
+async function downloadDailyReportPNG(){
+  if(!currentReportData)return;
+  showLoad('GENERANDO','Preparando tu reporte...');
+  await drawDailyReportCanvas(currentReportData.date,currentReportData.report);
+  hideLoad();
+  downloadCanvasImage('daily-report-canvas',`vhg-reporte-${currentReportData.date}.png`);
+}
+async function downloadDailyReportPDF(){
+  if(!currentReportData)return;
+  if(!window.jspdf||window.__jspdfLoadFailed){showToast('No se pudo cargar el generador de PDF');return;}
+  showLoad('GENERANDO','Preparando tu PDF...');
+  await drawDailyReportCanvas(currentReportData.date,currentReportData.report);
+  const canvas=document.getElementById('daily-report-canvas');
+  const{jsPDF}=window.jspdf;
+  const pdf=new jsPDF({unit:'mm',format:'a4'});
+  const pageW=210,pageH=297,ratio=canvas.width/canvas.height;
+  let w=pageW,h=w/ratio;
+  if(h>pageH){h=pageH;w=h*ratio;}
+  pdf.addImage(canvas.toDataURL('image/png'),'PNG',(pageW-w)/2,(pageH-h)/2,w,h);
+  pdf.save(`vhg-reporte-${currentReportData.date}.pdf`);
+  hideLoad();
+  showToast('PDF DESCARGADO');
+}
 
 // ── SUPPS ──
 function renderSupps(){

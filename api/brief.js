@@ -172,6 +172,57 @@ Responde SOLO la frase, sin JSON, sin explicación.`;
     }
   }
 
+  if (type === 'daily_report') {
+    const { dayData } = req.body;
+    const reportPrompt = `Genera un reporte nutricional del día en JSON con este formato exacto:
+{
+  "resumen": "Una oración de resumen del día",
+  "score_dia": 0,
+  "score_color": "green|yellow|red",
+  "macros": { "calorias": {"consumido":0,"objetivo":0,"pct":0},
+             "proteina": {"consumido":0,"objetivo":0,"pct":0},
+             "carbos": {"consumido":0,"objetivo":0,"pct":0},
+             "grasas": {"consumido":0,"objetivo":0,"pct":0} },
+  "hidratacion": { "consumido_ml":0, "objetivo_ml":0, "pct":0 },
+  "comidas": [ { "hora":"", "nombre":"", "calorias":0, "proteina":0 } ],
+  "highlights": ["logro positivo 1", "logro positivo 2"],
+  "areas_mejora": ["área 1", "área 2"],
+  "consejo_manana": "Una recomendación concreta para mañana",
+  "frase_cierre": "Frase motivacional personalizada corta"
+}
+Basado en estos datos: ${JSON.stringify(dayData || {})}`;
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1200,
+          system: reportPrompt,
+          messages: [{ role: 'user', content: 'Genera el reporte del día.' }]
+        })
+      });
+      if (!response.ok) {
+        const err = await response.text();
+        console.error('[brief] daily_report API error', { status: response.status, detail: err });
+        return res.status(500).json({ error: 'API error', detail: err });
+      }
+      const data = await response.json();
+      const raw = data.content?.[0]?.text || '{}';
+      let parsed;
+      try { parsed = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+      catch { parsed = { error: 'Parse error' }; }
+      return res.status(200).json(parsed);
+    } catch (err) {
+      console.error('[brief] daily_report exception', { message: err.message });
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   if (type === 'voice_onboarding') {
     const extractorPrompt = `Eres un extractor de perfil fitness. El usuario te habló en lenguaje
 natural sobre sus objetivos. Extrae EXACTAMENTE este JSON sin markdown:
