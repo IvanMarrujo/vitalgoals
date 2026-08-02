@@ -81,6 +81,8 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
 #splash-tagline{font-family:'Noto Sans',sans-serif;font-size:14px;color:#8892a4;margin-top:8px;opacity:0}
 #splash-loading-msg.loading-breath{font-family:'Noto Sans',sans-serif;font-size:12px;color:#00c853;margin-top:32px;animation:breath 2s ease-in-out infinite}
 @keyframes breath{0%,100%{opacity:.3}50%{opacity:1}}
+.splash-cursor{display:inline-block;color:var(--brand-accent);animation:blink .7s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
 /* TICKER */
 .ticker-wrap{background:#000;border-bottom:1px solid var(--border-a);overflow:hidden;height:30px;display:none;align-items:center}
@@ -1282,23 +1284,55 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     'Sincronizando tus objetivos de salud...',
     'Vital Health Goals listo para ti...'
   ];
-  let msgInterval=null;
+  let msgLoopActive=false;
 
   function hideSplash(){
     splashEl.classList.add('hide');
   }
 
-  function runTextFadeAndMessages(){
-    setTimeout(()=>{logoTextEl.style.transition='opacity .8s ease';logoTextEl.style.opacity=1;},900);
-    setTimeout(()=>{taglineEl.style.transition='opacity .8s ease';taglineEl.style.opacity=1;},1100);
+  // Terminal/system-style reveal: types `text` into `el` one char at a time,
+  // leaves a blinking cursor at the end, removes it 800ms after typing finishes,
+  // then calls onDone.
+  function typeWriter(el,text,speed,onDone){
+    el.style.opacity=1;
+    el.textContent='';
+    const cursor=document.createElement('span');
+    cursor.className='splash-cursor';
+    cursor.textContent='█';
+    el.appendChild(cursor);
+    let i=0;
+    const timer=setInterval(()=>{
+      if(i<text.length){
+        cursor.before(document.createTextNode(text[i]));
+        i++;
+      }else{
+        clearInterval(timer);
+        setTimeout(()=>{
+          if(cursor.parentNode)cursor.remove();
+          if(onDone)onDone();
+        },800);
+      }
+    },speed);
+  }
+
+  function runMessageTypewriterLoop(){
+    msgLoopActive=true;
     let mi=0;
-    const showNextMsg=()=>{
-      msgEl.style.transition='opacity .25s ease';
-      msgEl.style.opacity=0;
-      setTimeout(()=>{msgEl.textContent=MSGS[mi%MSGS.length];msgEl.style.opacity=1;mi++;},150);
+    const next=()=>{
+      if(!msgLoopActive)return;
+      typeWriter(msgEl,MSGS[mi%MSGS.length],25,()=>{
+        mi++;
+        next();
+      });
     };
-    setTimeout(()=>{showNextMsg();msgInterval=setInterval(showNextMsg,700);},1300);
-    setTimeout(()=>{if(msgInterval)clearInterval(msgInterval);},3800);
+    next();
+  }
+
+  function runTextFadeAndMessages(){
+    setTimeout(()=>{typeWriter(logoTextEl,'VITAL HEALTH GOALS',55);},900);
+    setTimeout(()=>{typeWriter(taglineEl,'Tu nutrición. Tu ciencia. Tu vida.',35);},1400);
+    setTimeout(runMessageTypewriterLoop,1800);
+    setTimeout(()=>{msgLoopActive=false;},4800);
   }
 
   let timelineStarted=false;
@@ -1308,8 +1342,8 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     if(timelineStarted)return;
     timelineStarted=true;
     runTextFadeAndMessages();
-    setTimeout(()=>{splashEl.style.opacity=0;},3800);
-    setTimeout(hideSplash,4300);
+    setTimeout(()=>{splashEl.style.opacity=0;},4800);
+    setTimeout(hideSplash,5300);
   }
 
   // Fallback if Three.js/CDN or the texture fails: text-only CSS fade, no 3D.
@@ -1371,7 +1405,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     }
 
     // particles/lights render immediately; texture loads async — the render loop and
-    // the 0-4300ms timeline below don't wait on it, so particles orbit from t=0 either
+    // the 0-5300ms timeline below don't wait on it, so particles orbit from t=0 either
     // way. If the texture fails to load, drop straight to the CSS-only fallback (no 3D).
     new THREE.TextureLoader().load('/assets/vhg-logo.png',buildTexturePlanes,undefined,()=>{
       cleanup();
@@ -1382,7 +1416,7 @@ body.interacted .frame-glow{animation:none;opacity:.3;box-shadow:inset 0 0 14px 
     const startTime=performance.now();
     animate();
     startTimeline();
-    setTimeout(cleanup,4300);
+    setTimeout(cleanup,5300);
 
     function animate(){
       rafId=requestAnimationFrame(animate);
