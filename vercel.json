@@ -7,6 +7,7 @@
     { "src": "sw.js", "use": "@vercel/static" },
     { "src": "icon-192.png", "use": "@vercel/static" },
     { "src": "icon-512.png", "use": "@vercel/static" },
+    { "src": "apple-touch-icon.png", "use": "@vercel/static" },
     { "src": "assets/**", "use": "@vercel/static" }
   ],
   "routes": [
@@ -20,6 +21,7 @@
     },
     { "src": "/icon-192.png", "dest": "/icon-192.png" },
     { "src": "/icon-512.png", "dest": "/icon-512.png" },
+    { "src": "/apple-touch-icon.png", "dest": "/apple-touch-icon.png" },
     {
       "src": "/(.*)",
       "dest": "/index.html",
